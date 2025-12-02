@@ -11,7 +11,59 @@
 - **Interface Segregation**: Clean abstract base classes
 - **Dependency Inversion**: Depend on abstractions, not concrete implementations
 
----
+## System Architecture
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#E8F5E9','secondaryColor':'#FFF3E0','tertiaryColor':'#E3F2FD','lineColor':'#FF6F00'}}}%%
+graph TB
+    subgraph client["👥 Client Layer"]
+        UI["🌐 React UI<br/>(Vite + TailwindCSS)"]
+    end
+    
+    subgraph api["🔌 API Layer"]
+        FastAPI["⚡ FastAPI Server<br/>main.py"]
+        Routes["📍 Routes<br/>(Upload, Jobs, Review)"]
+    end
+    
+    subgraph core["🧠 Business Logic"]
+        Worker["⚙️ Background Worker<br/>Async Task Processing"]
+        OCR["🔍 OCR Service<br/>(PaddleOCR)"]
+        PII["🛡️ PII Detection<br/>Security Layer"]
+        Audit["📋 Audit Service<br/>DPDP Compliance"]
+    end
+    
+    subgraph storage["💾 Data Layer"]
+        DB[("🗄️ Database<br/><i>SQLite/PostgreSQL</i>")]
+        Files["📦 Storage<br/><i>Local/R2</i>"]
+        Queue["📬 Queue<br/><i>Memory/Redis</i>"]
+    end
+    
+    UI -->|HTTPS| FastAPI
+    FastAPI --> Routes
+    Routes -->|Enqueue Task| Queue
+    Routes -->|Save Job| DB
+    Routes -->|Upload File| Files
+    
+    Worker -->|Poll Tasks| Queue
+    Worker -->|Process| OCR
+    Worker -->|Check PII| PII
+    Worker -->|Save Results| DB
+    Worker -->|Log Actions| Audit
+    
+    Audit -->|Persist| DB
+    
+    style UI fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
+    style FastAPI fill:#FF6F00,stroke:#E65100,stroke-width:3px,color:#fff
+    style Worker fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style DB fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
+    style Files fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
+    style Queue fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
+    style client fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,stroke-dasharray: 5 5
+    style api fill:#FFF3E0,stroke:#F57C00,stroke-width:2px,stroke-dasharray: 5 5
+    style core fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,stroke-dasharray: 5 5
+    style storage fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,stroke-dasharray: 5 5
+```
+
 
 ## Modular Components
 
@@ -105,6 +157,61 @@ REDIS_URL=redis://...
 ```
 
 **Code:** Factory pattern (`get_queue_service()`) returns correct implementation.
+
+---
+
+## Document Processing Flow
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','secondaryColor':'#2196F3','tertiaryColor':'#FF9800'}}}%%
+sequenceDiagram
+    participant U as 👤 User
+    participant UI as 🌐 Frontend
+    participant API as ⚡ API
+    participant Q as 📬 Queue
+    participant W as ⚙️ Worker
+    participant OCR as 🔍 OCR Engine
+    participant PII as 🛡️ PII Detector
+    participant DB as 🗄️ Database
+    
+    U->>UI: Upload Document + DPDP Fields
+    UI->>API: POST /upload (FormData)
+    API->>DB: Save Job (status: pending)
+    API->>Q: Enqueue Task (job_id)
+    API-->>UI: Return job_id
+    UI->>UI: Poll /jobs/{id} (every 2s)
+    
+    rect rgb(200, 230, 201)
+    Note over W,PII: Background Processing
+    W->>Q: Poll for tasks
+    Q-->>W: Task {job_id}
+    W->>OCR: Extract text + bounding boxes
+    OCR-->>W: Result (text, confidence)
+    W->>PII: Scan for Aadhaar/PAN/Email
+    PII-->>W: PII detected: true/false
+    
+    alt Confidence < 90%
+        W->>DB: Set review_status = "needs_review"
+    else Confidence >= 90%
+        W->>DB: Set status = "completed"
+    end
+    end
+    
+    UI->>API: GET /jobs/{id}
+    API-->>UI: Job status + results
+    
+    alt Needs Review
+        UI->>U: Show "Review Required" button
+        U->>UI: Click "Review"
+        UI->>API: GET /jobs/needs-review
+        API-->>UI: List of jobs
+        U->>UI: Edit text, Approve/Reject
+        UI->>API: PATCH /jobs/{id}/review
+        API->>DB: Update ground_truth.json
+    end
+    
+    UI->>U: Display final results
+```
 
 ---
 
