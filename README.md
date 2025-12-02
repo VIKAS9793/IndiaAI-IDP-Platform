@@ -48,34 +48,34 @@ As a 0-1 product, we prioritized **adaptability** over raw scale. We chose a mod
 graph TB
     subgraph local["🖥️ Phase 0: Local MVP"]
         direction TB
-        SQLite[("💾 SQLite<br/>Development DB")]
-        LocalFS["📁 Local Disk<br/>File Storage"]
-        MemQ["⚡ Memory Queue<br/>In-Process"]
+        SQLite[("💾 SQLite")]
+        LocalFS["📁 Local Disk"]
+        MemQ["⚡ Memory Queue"]
         
         style SQLite fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
         style LocalFS fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
         style MemQ fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
     end
     
-    subgraph prod["☁️ Phase 1: Production Scale"]
+    subgraph prod["☁️ Phase 1: Production"]
         direction TB
-        Postgres[("🐘 PostgreSQL<br/>100M+ Users")]
-        S3["🪣 R2/S3<br/>Cloud Storage"]
-        Redis["🔴 Redis<br/>Distributed Queue"]
+        Postgres[("🐘 PostgreSQL")]
+        S3["🪣 R2/S3"]
+        Redis["🔴 Redis"]
         
         style Postgres fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
         style S3 fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
         style Redis fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
     end
     
-    Core["🎯 IDP Core Logic<br/><i>Zero Code Changes</i>"]
+    Core["🎯 IDP Core Logic"]
     
-    Core -->|"🔧 Config Switch"| SQLite
-    Core -->|"🔧 Config Switch"| Postgres
-    Core -->|"🔧 Config Switch"| LocalFS
-    Core -->|"🔧 Config Switch"| S3
-    Core -.->|"🔧 Config Switch"| MemQ
-    Core -.->|"🔧 Config Switch"| Redis
+    Core -->|DB| SQLite
+    Core -->|DB| Postgres
+    Core -->|Storage| LocalFS
+    Core -->|Storage| S3
+    Core -.->|Queue| MemQ
+    Core -.->|Queue| Redis
     
     style Core fill:#FF6F00,stroke:#E65100,stroke-width:4px,color:#fff,font-size:16px
     style local fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,stroke-dasharray: 5 5
