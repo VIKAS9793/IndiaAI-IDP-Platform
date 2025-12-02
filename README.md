@@ -21,21 +21,25 @@ A **self-contained, air-gapped AI platform** that any department can spin up in 
 
 ## 📸 Product Screenshots
 
-### Upload Page (DPDP Compliance UI)
-![Upload Page - DPDP Fields](assets/images/1764427296480.jpg)
-*DPDP Act 2023 compliance enforced at upload: Purpose selection and consent verification required before processing.*
+### Homepage
+![Homepage](assets/images/1764427296480.jpg)
+*Landing page with DPDP Act 2023 disclaimer and upload workflow introduction.*
+
+### Upload Page - DPDP Compliance UI
+![Upload Page - DPDP Fields](assets/images/1764427296525.jpg)
+*Purpose selection and consent verification enforced before document processing.*
 
 ### Document Processing & Results
 ![OCR Results View](assets/images/1764427296487.jpg)
-*Side-by-side document viewer with extracted text and confidence scores. Bounding boxes overlay detected text regions.*
-
-### Human-in-the-Loop Review Interface
-![HITL Review Interface](assets/images/1764513828541.jpg)
-*Manual review page for low-confidence extractions. Reviewers can edit text directly and approve/reject results.*
+*Side-by-side document viewer with extracted text and confidence scores.*
 
 ### Document Viewer with Bounding Boxes
 ![Document Viewer](assets/images/1764427296504.jpg)
-*PDF viewer with visual bounding boxes highlighting detected text regions for verification.*
+*PDF viewer with visual bounding boxes highlighting detected text regions.*
+
+### Human-in-the-Loop Review Interface
+![HITL Review Interface](assets/images/1764513828541.jpg)
+*Manual review page for low-confidence extractions with inline editing.*
 
 ---
 
