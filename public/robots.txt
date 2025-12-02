@@ -1,0 +1,24 @@
+# This is a PROTOTYPE demonstration only
+# NOT an official platform - preventing all search engine indexing
+
+User-agent: *
+Disallow: /
+
+# Explicitly block all major search engines
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /

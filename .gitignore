@@ -1,0 +1,147 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+backend/.venv/
+backend/venv/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# React/Vite
+dist/
+dist-ssr/
+*.local
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific - Database & Runtime
+backend/data/indiaai.db
+backend/data/indiaai.db-shm
+backend/data/indiaai.db-wal
+backend/data/test_images/*
+!backend/data/test_images/.keep
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+backend/data/eval_sample/*
+!backend/data/eval_sample/.gitkeep
+backend/data/ground_truth.json
+results/
+logs/
+*.log
+backend/data/.ground_truth.lock
+
+# Debug & Test Scripts (ROOT LEVEL - exclude from production)
+backend/test_*.py
+backend/check_*.py
+backend/debug_*.py
+backend/*_test.py
+backend/validate_*.py
+backend/verify_*.py
+scripts/test_*.py
+scripts/smoke_*.py
+scripts/e2e_*.py
+
+# Test Sample Files (exclude all test data)
+test*.pdf
+test*.jpg
+test*.jpeg
+test*.png
+test*.txt
+backend/test*.pdf
+backend/test*.jpg
+backend/test*.png
+backend/test*.jpeg
+smoke_test*.txt
+*_debug*.txt
+worker_debug*.txt
+debug_output.txt
+test_output.txt
+*.debug
+
+# Development Convenience Scripts (not needed in production)
+backend/run.bat
+backend/run.ps1
+backend/run_worker.ps1
+backend/*.bat
+backend/*.ps1
+
+# Test Configuration (pytest specific)
+backend/pytest.in
+
+i
+
+# Evaluation outputs
+backend/eval_report.json
+backend/evaluation_*.json
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+
+# Documentation artifacts (these live in brain/, not repo)
+docs/ENGINEERING_LOG.md

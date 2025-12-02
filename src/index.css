@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Indian tricolor colors */
+  --color-india-saffron: #FF9933;
+  --color-india-white: #FFFFFF;
+  --color-india-green: #138808;
+  --color-india-navy: #000080;
+
+  /* Government website palette */
+  --color-gov-primary: #0056b3;
+  --color-gov-secondary: #6c757d;
+  --color-gov-accent: #ffc107;
+  --color-gov-bg: #f8f9fa;
+  --color-gov-text: #212529;
+
+  /* Font families */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-heading: 'Poppins', sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-gov-bg);
+    color: var(--color-gov-text);
+    font-family: var(--font-family-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-family-heading);
+  }
+}
+
+@layer components {
+  .tricolor-bar {
+    background: linear-gradient(to right,
+        #FF9933 0%,
+        #FF9933 33.33%,
+        #FFFFFF 33.33%,
+        #FFFFFF 66.66%,
+        #138808 66.66%,
+        #138808 100%);
+  }
+}
