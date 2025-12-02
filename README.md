@@ -101,8 +101,7 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 
 *   [**Setup Guide (MVP)**](docs/SETUP.md) - Get the "Phase 0" version running in 5 minutes.
 *   [**Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for common "0 to 1" hurdles.
-*   [**Architecture Deep Dive**](backend/ARCHITECTURE.md) - The technical blueprint.
-*   [**Engineering Log**](docs/ENGINEERING_LOG.md) - Our decision-making journal (deferred; see brain/ artifacts).
+*   [**Architecture Deep Dive**](backend/ARCHITECTURE.md) - The technical blueprint with visual diagrams.
 *   [**ADRs (Architecture Decisions)**](docs/adr/) - Key technical decisions documented.
 
 ---
