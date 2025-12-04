@@ -1,6 +1,6 @@
 fastapi==0.108.0
 uvicorn[standard]==0.25.0
-python-multipart==0.0.6
+python-multipart==0.0.9  # Updated from 0.0.6 - fixes ReDoS CVE
 pydantic==2.5.3
 pydantic-settings==2.1.0
 
@@ -10,10 +10,12 @@ alembic==1.13.1
 
 # Image processing (for future OCR phase)
 pdf2image==1.16.3
-Pillow==10.1.0
+Pillow==10.3.0  # Updated from 10.1.0 - fixes buffer overflow CVE
 
 # OCR - PaddleOCR (optimized for Intel CPU)
-paddlepaddle==2.6.0
+# WARNING: PaddlePaddle 2.6.0 has CRITICAL vulnerabilities (CVE-2024-0917, etc.)
+# Upgrade to 3.0.0+ required for production. Using 2.6.1 minimum for dev.
+paddlepaddle==2.6.1  # Minimum patched version (3.0.0+ recommended for prod)
 paddleocr==2.7.3
 
 # Utilities
