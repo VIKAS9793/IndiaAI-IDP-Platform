@@ -10,7 +10,7 @@ alembic==1.13.1
 
 # Image processing (for future OCR phase)
 pdf2image==1.16.3
-Pillow==10.1.0
+Pillow==10.3.0
 
 # OCR - PaddleOCR (optimized for Intel CPU)
 paddlepaddle==2.6.0
