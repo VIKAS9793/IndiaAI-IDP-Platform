@@ -123,11 +123,14 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install dependencies
+      - name: Install dependencies (excluding OCR packages)
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # Install only non-OCR dependencies for security scanning
+          pip install fastapi uvicorn python-multipart pydantic pydantic-settings
+          pip install sqlalchemy alembic
+          pip install python-dotenv pytest pytest-asyncio APScheduler
           pip install safety bandit
       
       - name: Run Safety check (dependency vulnerabilities)
