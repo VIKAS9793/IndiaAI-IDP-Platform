@@ -77,8 +77,7 @@ class TestPhoneMasking:
         """Test masking multiple phone numbers."""
         text = "Call 9876543210 or 8765432109"
         result = SecurityUtils.mask_pii(text)
-        print(f"\nDEBUG: Input: '{text}'")
-        print(f"DEBUG: Result: '{result}'")
+        # Removed debug prints to avoid logging sensitive data
         assert "9876543210" not in result
         assert "8765432109" not in result
         # Check for masked versions explicitly
