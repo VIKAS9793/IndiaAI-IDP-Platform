@@ -24,5 +24,25 @@ Thank you for your interest in contributing to the IndiaAI IDP Platform! This pr
 *   **Frontend**: React + TypeScript + Vite.
 *   **Documentation**: Ensure README and inline docs are updated.
 
+## 🔒 Security & Quality Checks
+
+Before submitting a PR, run the security scan:
+
+```bash
+# Windows
+npm run security:scan:win
+
+# Unix/Linux/macOS
+npm run security:scan:unix
+```
+
+This checks for:
+- Dependency vulnerabilities
+- Code quality (ESLint)
+- Type safety (TypeScript)
+- Build integrity
+
+**All PRs are automatically scanned** by GitHub Actions. See [docs/SECURITY.md](docs/SECURITY.md) for details.
+
 ## ⚖️ License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

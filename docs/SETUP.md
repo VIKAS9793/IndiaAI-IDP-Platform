@@ -54,3 +54,22 @@ The UI will be available at `http://localhost:5173`.
 *   **Backend:** Configuration is managed in `backend/app/core/config.py`. No `.env` file is required for local dev (defaults are set).
 *   **Frontend:** API URL is configured in `src/lib/api.ts`.
 
+## 4. Verify Installation
+
+Run the security scan to verify everything is set up correctly:
+
+```bash
+# Windows
+npm run security:scan:win
+
+# Unix/Linux/macOS
+npm run security:scan:unix
+```
+
+This will check:
+- ✅ Dependencies installed correctly
+- ✅ No security vulnerabilities
+- ✅ Code quality passes
+- ✅ Build works
+
+For more details, see [SECURITY.md](SECURITY.md).
