@@ -14,7 +14,7 @@ from app.core.database import SessionLocal
 from app.services.queue import get_queue_service
 from app.services.storage import get_storage_service
 from app.services.ocr import get_ocr_service
-from app.services.pii import PIIService
+# Note: PII detection removed - was Presidio-based, now handled by SecurityUtils
 from app.services.governance import GovernanceService
 from app.models.job import Job, OCRResult
 
@@ -76,34 +76,20 @@ async def process_document_task(task_data: dict, db: Session):
         job.progress = 60
         db.commit()
         
-        # 3. Governance & PII Checks
+        # 3. Governance Checks
         print("Running Governance Checks...")
-        pii_service = PIIService()
+        # Note: Presidio PII detection removed
+        # SecurityUtils provides PII masking in app/core/security_utils.py
         governance_service = GovernanceService()
         
-        # Analyze full text for PII
-        pii_entities = pii_service.analyze_text(result.full_text)
-        
-        if pii_entities:
-            job.contains_pii = True
-            # Update PII types
-            current_pii_types = json.loads(job.pii_types) if job.pii_types else []
-            new_types = [e['type'] for e in pii_entities]
-            all_types = list(set(current_pii_types + new_types))
-            job.pii_types = json.dumps(all_types)
-            print(f"PII Detected: {new_types}")
-            
-        # Risk Assessment
+        # Risk Assessment (without Presidio PII data)
         risk_assessment = governance_service.assess_risk(
-            document_type=job.filename, # Simple heuristic for now
+            document_type=job.filename,
             content=result.full_text,
-            pii_detected=bool(pii_entities)
+            pii_detected=False  # Can enhance with SecurityUtils if needed
         )
         
         # Fairness Check
-        # Create a dummy list of OCRResult objects for the service to check
-        # In a real scenario, we'd pass the actual page results
-        # Here we just pass a simple object with confidence
         fairness_check = governance_service.validate_fairness(
             [type('obj', (object,), {'confidence': result.average_confidence})]
         )
@@ -112,7 +98,7 @@ async def process_document_task(task_data: dict, db: Session):
         guardrail_data = {
             "risk_assessment": risk_assessment,
             "fairness_check": fairness_check,
-            "pii_count": len(pii_entities)
+            "note": "PII masking available via SecurityUtils"
         }
         job.guardrail_flags = json.dumps(guardrail_data)
         

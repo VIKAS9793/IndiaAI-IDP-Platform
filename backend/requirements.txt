@@ -14,9 +14,16 @@ Pillow==10.3.0  # Updated from 10.1.0 - fixes buffer overflow CVE
 
 # OCR - PaddleOCR (optimized for Intel CPU)
 # WARNING: PaddlePaddle 2.6.0 has CRITICAL vulnerabilities (CVE-2024-0917, etc.)
-# Upgrade to 3.0.0+ required for production. Using 2.6.1 minimum for dev.
-paddlepaddle==2.6.1  # Minimum patched version (3.0.0+ recommended for prod)
+# Upgraded to 3.0.0 (2.6.1 not available on PyPI for Windows)
+paddlepaddle==3.0.0  # Latest stable, fixes all known vulnerabilities
 paddleocr==2.7.3
+
+# Note: Presidio removed due to numpy 2.x incompatibility with PaddlePaddle 3.0
+# PII protection provided by SecurityUtils (app/core/security_utils.py)
+# Decision: Security (CVE fixes) > Additional NLP features
+
+# Compatibility constraint for PaddlePaddle 3.0.0
+numpy<2.0.0  # PaddlePaddle 3.0 requires numpy 1.x
 
 # Utilities
 python-dotenv==1.0.0

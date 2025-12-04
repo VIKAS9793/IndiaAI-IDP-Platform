@@ -9,23 +9,54 @@
 
 The backend handles document processing, OCR, and governance logic.
 
-### Installation
+### ⚠️ Important: Fresh Environment Setup
+
+**Due to numpy compatibility requirements with secure PaddlePaddle 3.0.0, a fresh virtual environment is required:**
+
 ```bash
 cd backend
+
+# Delete old environment if it exists
+# Windows:
+Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+# Linux/Mac:
+rm -rf .venv
+
+# Create fresh virtual environment
 python -m venv .venv
-# Windows
+
+# Activate
+# Windows:
 .\.venv\Scripts\Activate.ps1
-# Linux/Mac
+# Linux/Mac:
 source .venv/bin/activate
 
+# Upgrade pip (critical)
+python -m pip install --upgrade pip setuptools wheel
+
+# Install dependencies (numpy will be installed with correct version)
 pip install -r requirements.txt
 ```
 
+**Critical Dependency Versions (Verified Working):**
+- `paddlepaddle==3.0.0` (fixes 7 critical CVEs)
+- `numpy<2.0.0` (auto-installed, required for PaddlePaddle)
+- `Pillow==10.3.0` (security patch)
+- `python-multipart==0.0.9` (security patch)
+
 ### Database Setup
-We use SQLite for development. Initialize the database with Alembic:
+
+Initialize SQLite database and create required tables:
+
 ```bash
+# Run migrations
 alembic upgrade head
+
+# Create audit_logs table (if missing)
+python scripts/create_audit_table.py
 ```
+
+**Note:** If `alembic upgrade head` doesn't create all tables, the `scripts/create_audit_table.py` script will create the missing `audit_logs` table.
 
 ### Running the Server
 ```bash

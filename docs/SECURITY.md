@@ -70,7 +70,8 @@ This project is not vulnerable to the critical React Server Components RCE vulne
 - Does not have `react-server-dom-*` packages
 - Backend is Python FastAPI (not Node.js)
 
-See [security audit report](docs/security-audit-2025-12-04.md) for details.
+**Detailed analysis available in project artifacts.**
+
 
 ## Security Best Practices
 
