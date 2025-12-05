@@ -298,3 +298,8 @@ def get_vector_service() -> VectorService:
     if _vector_service is None:
         _vector_service = VectorService()
     return _vector_service
+
+
+def is_vector_enabled() -> bool:
+    """Check if vector search is enabled via environment variable."""
+    return ENABLE_VECTOR_SEARCH
