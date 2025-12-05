@@ -70,6 +70,17 @@ async def startup_event():
         from app.worker import run_worker
         import asyncio
         asyncio.create_task(run_worker())
+    
+    # Pre-warm embedding model if vector search enabled
+    if os.getenv("ENABLE_VECTOR_SEARCH", "false").lower() == "true":
+        try:
+            print("🧠 Pre-warming embedding model...")
+            from app.services.vector import get_vector_service
+            vector_service = get_vector_service()
+            vector_service._lazy_init()
+            print("   ✓ Embedding model ready")
+        except Exception as e:
+            print(f"   ⚠️ Embedding pre-warm failed: {e}")
 
     # Initialize Scheduler for Cleanup Tasks
     from apscheduler.schedulers.asyncio import AsyncIOScheduler

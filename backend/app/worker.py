@@ -24,11 +24,17 @@ async def process_document_task(task_data: dict, db: Session):
     """
     Process a document: Download -> OCR -> Save Results -> Governance Checks
     """
+    import time
+    pipeline_start = time.time()
+    timings = {}
+    
     job_id = task_data.get("job_id")
     file_key = task_data.get("file_key")
     language = task_data.get("language", "auto")
     
-    print(f"Processing job {job_id} for file {file_key}...")
+    print(f"\n{'='*60}")
+    print(f"⏱️  PIPELINE START: Job {job_id}")
+    print(f"{'='*60}")
     
     # Get job record
     job = db.query(Job).filter(Job.id == job_id).first()
@@ -44,7 +50,8 @@ async def process_document_task(task_data: dict, db: Session):
         db.commit()
         
         # 1. Download file
-        print("Downloading file...")
+        step_start = time.time()
+        print("📁 Step 1: Downloading file...")
         storage = get_storage_service()
         
         if settings.STORAGE_TYPE == "local":
@@ -63,22 +70,85 @@ async def process_document_task(task_data: dict, db: Session):
             file_path = temp_path
             
         job.progress = 30
+        timings['download'] = round(time.time() - step_start, 2)
+        print(f"   ✓ Download: {timings['download']}s")
         db.commit()
         
-        # 2. Run OCR
-        print(f"Running OCR ({settings.OCR_BACKEND})...")
+        # 2. Run OCR (with PDF handling)
+        step_start = time.time()
+        print(f"🔍 Step 2: Running OCR ({settings.OCR_BACKEND})...")
+        
+        pdf_image_paths = []  # Track temp images for cleanup
+        
         try:
             ocr = get_ocr_service()
-            result = await ocr.extract_text(str(file_path), language=language)
+            
+            # Check if file is PDF - convert to images first
+            file_str = str(file_path).lower()
+            is_pdf = file_str.endswith('.pdf') or job.file_type == 'application/pdf'
+            
+            if is_pdf:
+                from app.services.ocr import convert_pdf_to_images, cleanup_temp_images
+                
+                # Convert PDF to images
+                pdf_step_start = time.time()
+                pdf_image_paths = convert_pdf_to_images(file_path, dpi=150)
+                timings['pdf_convert'] = round(time.time() - pdf_step_start, 2)
+                print(f"   ✓ PDF Conversion: {timings['pdf_convert']}s ({len(pdf_image_paths)} pages)")
+                
+                # OCR each page and merge results
+                all_blocks = []
+                all_text_parts = []
+                total_confidence = 0.0
+                total_blocks = 0
+                
+                for i, img_path in enumerate(pdf_image_paths):
+                    print(f"   📄 Processing page {i+1}/{len(pdf_image_paths)}...")
+                    page_result = await ocr.extract_text(str(img_path), language=language)
+                    
+                    # Adjust bounding boxes for page offset (vertical stacking)
+                    page_height = 1000  # Approximate page height in pixels
+                    for block in page_result.blocks:
+                        block.bbox.y += i * page_height  # Offset for page
+                        all_blocks.append(block)
+                    
+                    all_text_parts.append(page_result.full_text)
+                    total_confidence += page_result.average_confidence * len(page_result.blocks)
+                    total_blocks += len(page_result.blocks)
+                
+                # Create merged result
+                from app.services.ocr import OCRResult as OCRResultData
+                result = OCRResultData(
+                    full_text='\n\n--- Page Break ---\n\n'.join(all_text_parts),
+                    blocks=all_blocks,
+                    average_confidence=total_confidence / total_blocks if total_blocks > 0 else 0.0,
+                    language=language,
+                    processing_time=time.time() - step_start
+                )
+                
+                # Cleanup temp images
+                cleanup_temp_images(pdf_image_paths)
+                print(f"   ✓ Merged {len(pdf_image_paths)} pages, {total_blocks} text blocks")
+            else:
+                # Direct image OCR
+                result = await ocr.extract_text(str(file_path), language=language)
+                
         except Exception as e:
+            # Cleanup on error
+            if pdf_image_paths:
+                from app.services.ocr import cleanup_temp_images
+                cleanup_temp_images(pdf_image_paths)
             print(f"CRASH IN WORKER DURING OCR CALL: {e}")
             raise e
         
         job.progress = 60
+        timings['ocr'] = round(time.time() - step_start, 2)
+        print(f"   ✓ OCR: {timings['ocr']}s (Confidence: {result.average_confidence * 100:.1f}%)")
         db.commit()
         
         # 3. Governance Checks
-        print("Running Governance Checks...")
+        step_start = time.time()
+        print("🛡️  Step 3: Running Governance Checks...")
         # Note: Presidio PII detection removed
         # SecurityUtils provides PII masking in app/core/security_utils.py
         governance_service = GovernanceService()
@@ -102,6 +172,8 @@ async def process_document_task(task_data: dict, db: Session):
             "note": "PII masking available via SecurityUtils"
         }
         job.guardrail_flags = json.dumps(guardrail_data)
+        timings['governance'] = round(time.time() - step_start, 2)
+        print(f"   ✓ Governance: {timings['governance']}s")
         
         job.progress = 80
         db.commit()
@@ -149,15 +221,16 @@ async def process_document_task(task_data: dict, db: Session):
         # Auto-flag for review if confidence is low
         if result.average_confidence < 90.0:
             job.review_status = "needs_review"
-            print(f"Job {job_id} flagged for review (Confidence: {result.average_confidence}%)")
+            print(f"Job {job_id} flagged for review (Confidence: {result.average_confidence * 100:.1f}%)")
         
         db.commit()
         print(f"Job {job_id} completed successfully!")
         
         # 5. Generate vector embedding (if enabled)
         if ENABLE_VECTOR_SEARCH:
+            step_start = time.time()
             try:
-                print("Generating document embedding...")
+                print("🧠 Step 5: Generating document embedding...")
                 vector_service = get_vector_service()
                 vector_service.add_document(
                     job_id=str(job.id),
@@ -168,10 +241,24 @@ async def process_document_task(task_data: dict, db: Session):
                         "confidence": result.average_confidence
                     }
                 )
-                print(f"Embedding generated for job {job_id}")
+                timings['embedding'] = round(time.time() - step_start, 2)
+                print(f"   ✓ Embedding: {timings['embedding']}s")
             except Exception as e:
-                print(f"Warning: Failed to generate embedding: {e}")
+                print(f"   ✗ Embedding failed: {e}")
                 # Don't fail the job - vector search is optional
+        
+        # Print pipeline summary
+        total_time = round(time.time() - pipeline_start, 2)
+        print(f"\n{'='*60}")
+        print(f"⏱️  PIPELINE COMPLETE: {total_time}s total")
+        print(f"{'='*60}")
+        print(f"   📁 Download:   {timings.get('download', 'N/A')}s")
+        print(f"   🔍 OCR:        {timings.get('ocr', 'N/A')}s")
+        print(f"   🛡️  Governance: {timings.get('governance', 'N/A')}s")
+        if 'embedding' in timings:
+            print(f"   🧠 Embedding:  {timings.get('embedding', 'N/A')}s")
+        print(f"   📊 Confidence: {result.average_confidence * 100:.1f}%")
+        print(f"{'='*60}\n")
         
         # Cleanup temp file if needed
         if settings.STORAGE_TYPE != "local" and 'temp_path' in locals():
