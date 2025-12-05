@@ -105,6 +105,10 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 
 ## 📚 Documentation for Builders
 
+> **🚀 One-Click Setup:** 
+> - **Windows:** [`setup.ps1`](setup.ps1) 
+> - **Linux/Mac:** [`setup.sh`](setup.sh)
+
 *   [**Setup Guide (MVP)**](docs/SETUP.md) - Get the "Phase 0" version running in 5 minutes.
 *   [**Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for common "0 to 1" hurdles.
 *   [**Architecture Deep Dive**](backend/ARCHITECTURE.md) - The technical blueprint with visual diagrams.

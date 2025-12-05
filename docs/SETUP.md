@@ -1,5 +1,13 @@
 # 🛠️ Setup Guide: IndiaAI IDP Platform
 
+> **🚀 One-Click Setup (Recommended):**  
+> - **Windows:** Run `.\setup.ps1` in PowerShell
+> - **Linux/Mac:** Run `chmod +x setup.sh && ./setup.sh`
+>
+> Right-click → "Run with PowerShell" (Windows) or execute from terminal.
+
+---
+
 ## Prerequisites
 *   Python 3.10+
 *   Node.js 18+
