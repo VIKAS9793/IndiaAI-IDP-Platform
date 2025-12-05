@@ -7,7 +7,65 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from dataclasses import dataclass
+import tempfile
+import os
 from app.core.config import settings
+
+
+def convert_pdf_to_images(pdf_path: Path, dpi: int = 150) -> List[Path]:
+    """
+    Convert PDF pages to images for OCR processing.
+    
+    Args:
+        pdf_path: Path to PDF file
+        dpi: Resolution (150=fast, 200=balanced, 300=quality)
+        
+    Returns:
+        List of paths to temporary PNG images
+    """
+    try:
+        from pdf2image import convert_from_path
+    except ImportError:
+        raise ImportError("pdf2image required. Install: pip install pdf2image")
+    
+    print(f"📄 Converting PDF to images (DPI={dpi})...")
+    
+    # Convert PDF pages to PIL images
+    images = convert_from_path(
+        str(pdf_path), 
+        dpi=dpi,
+        fmt='png',
+        thread_count=4  # Parallel processing
+    )
+    
+    # Save to temp files
+    image_paths = []
+    temp_dir = tempfile.mkdtemp(prefix="ocr_pdf_")
+    
+    for i, image in enumerate(images):
+        temp_path = Path(temp_dir) / f"page_{i+1}.png"
+        image.save(temp_path, 'PNG')
+        image_paths.append(temp_path)
+        print(f"   ✓ Page {i+1}/{len(images)} converted")
+    
+    print(f"   ✓ {len(images)} page(s) ready for OCR")
+    return image_paths
+
+
+def cleanup_temp_images(image_paths: List[Path]) -> None:
+    """Clean up temporary image files after OCR"""
+    for path in image_paths:
+        try:
+            if path.exists():
+                os.unlink(path)
+        except Exception:
+            pass
+    # Try to remove temp directory
+    if image_paths:
+        try:
+            os.rmdir(image_paths[0].parent)
+        except Exception:
+            pass
 
 
 @dataclass
@@ -192,29 +250,38 @@ class PaddleOCRService(OCRService):
                 score = scores[i] if i < len(scores) else 0.0
                 box = boxes[i] if i < len(boxes) else None
                 
-                # Calculate bbox from points
+                # Calculate bbox from points or rect
                 x, y, w, h = 0, 0, 0, 0
-                if box is not None and len(box) > 0:
+                if box is not None:
                     try:
                         import numpy as np
                         if isinstance(box, np.ndarray):
                             box = box.tolist()
                         
-                        # box is array of points [[x1,y1], [x2,y2], ...]
-                        # Flatten if needed
-                        flat_box = []
-                        if isinstance(box[0], (list, tuple)):
-                            for p in box:
-                                flat_box.extend(p)
-                        else:
-                            flat_box = box
-                            
-                        xs = flat_box[0::2]
-                        ys = flat_box[1::2]
+                        # Handle different box formats:
+                        # 1. rec_boxes: [x1, y1, x2, y2] - 4 values
+                        # 2. rec_polys/dt_polys: [[x1,y1], [x2,y2], ...] - polygon points
                         
-                        if xs and ys:
-                            x, y = min(xs), min(ys)
-                            w, h = max(xs) - x, max(ys) - y
+                        if len(box) == 4 and not isinstance(box[0], (list, tuple)):
+                            # Format: [x1, y1, x2, y2]
+                            x1, y1, x2, y2 = box
+                            x, y = float(x1), float(y1)
+                            w, h = float(x2 - x1), float(y2 - y1)
+                        else:
+                            # Polygon format: [[x1,y1], [x2,y2], ...]
+                            flat_box = []
+                            if isinstance(box[0], (list, tuple)):
+                                for p in box:
+                                    flat_box.extend(p)
+                            else:
+                                flat_box = box
+                                
+                            xs = flat_box[0::2]
+                            ys = flat_box[1::2]
+                            
+                            if xs and ys:
+                                x, y = min(xs), min(ys)
+                                w, h = max(xs) - x, max(ys) - y
                     except Exception as e:
                         print(f"Error parsing box {i}: {e}")
                 
