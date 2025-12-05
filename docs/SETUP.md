@@ -65,6 +65,25 @@ python -m uvicorn main:app --reload
 The API will be available at `http://localhost:8000`.
 Docs: `http://localhost:8000/docs`
 
+### v2.0 Feature Flags (Optional)
+
+Enable smart search features with environment variables:
+
+```bash
+# Windows PowerShell
+$env:ENABLE_VECTOR_SEARCH="true"      # ChromaDB semantic search
+$env:ENABLE_FULLTEXT_SEARCH="true"    # SQLite FTS5 keyword search
+
+# Linux/Mac
+export ENABLE_VECTOR_SEARCH=true
+export ENABLE_FULLTEXT_SEARCH=true
+```
+
+**PDF Support Requirements:**
+- Install Poppler: `winget install oschwartz10612.Poppler` (Windows)
+- Linux: `apt install poppler-utils`
+- Add Poppler to PATH for pdf2image
+
 ## 2. Frontend Setup (React + Vite)
 
 The frontend provides the user interface for uploading documents and viewing results.
