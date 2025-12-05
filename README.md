@@ -124,12 +124,21 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 - **Storage:** Local Filesystem / R2 (S3-compatible)
 - **Queue:** In-Memory (dev) / Redis (prod-ready)
 
+### v2.0 Smart Search (NEW)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-FF6F00?style=for-the-badge) ![SQLite FTS5](https://img.shields.io/badge/SQLite_FTS5-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+
+- **Vector Search:** ChromaDB + sentence-transformers (semantic similarity)
+- **Full-Text Search:** SQLite FTS5 (BM25 ranking, zero dependencies)
+- **Hybrid Search:** Combined keyword + semantic results
+- **PDF Processing:** pdf2image + Poppler (multi-page support)
+
 ### Frontend
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
 ### **Future Enhancements (Post-Pilot)**
 - **LLM Structuring:** Ollama (local) for semantic document parsing
-- **Vector DB:** ChromaDB for document similarity search
+- **JWT Authentication:** Role-based access control
+- **Redis Cache:** Performance optimization
 
 ---
 

@@ -22,7 +22,7 @@ graph TB
     
     subgraph api["🔌 API Layer"]
         FastAPI["⚡ FastAPI Server<br/>main.py"]
-        Routes["📍 Routes<br/>(Upload, Jobs, Review)"]
+        Routes["📍 Routes<br/>(Upload, Jobs, Review, Search)"]
     end
     
     subgraph core["🧠 Business Logic"]
@@ -30,12 +30,15 @@ graph TB
         OCR["🔍 OCR Service<br/>(PaddleOCR)"]
         PII["🛡️ PII Detection<br/>Security Layer"]
         Audit["📋 Audit Service<br/>DPDP Compliance"]
+        Vector["🧠 Vector Service<br/>(ChromaDB)"]
+        Search["🔎 Search Service<br/>(SQLite FTS5)"]
     end
     
     subgraph storage["💾 Data Layer"]
         DB[("🗄️ Database<br/><i>SQLite/PostgreSQL</i>")]
         Files["📦 Storage<br/><i>Local/R2</i>"]
         Queue["📬 Queue<br/><i>Memory/Redis</i>"]
+        VectorDB[("🧲 ChromaDB<br/><i>Embeddings</i>")]
     end
     
     UI -->|HTTPS| FastAPI
@@ -43,13 +46,18 @@ graph TB
     Routes -->|Enqueue Task| Queue
     Routes -->|Save Job| DB
     Routes -->|Upload File| Files
+    Routes -->|Search| Search
+    Routes -->|Semantic Search| Vector
     
     Worker -->|Poll Tasks| Queue
     Worker -->|Process| OCR
     Worker -->|Check PII| PII
     Worker -->|Save Results| DB
     Worker -->|Log Actions| Audit
+    Worker -->|Index| Search
+    Worker -->|Embed| Vector
     
+    Vector -->|Store| VectorDB
     Audit -->|Persist| DB
     
     style UI fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
@@ -58,6 +66,9 @@ graph TB
     style DB fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
     style Files fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
     style Queue fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
+    style VectorDB fill:#E91E63,stroke:#C2185B,stroke-width:3px,color:#fff
+    style Vector fill:#00BCD4,stroke:#00838F,stroke-width:3px,color:#fff
+    style Search fill:#00BCD4,stroke:#00838F,stroke-width:3px,color:#fff
     style client fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,stroke-dasharray: 5 5
     style api fill:#FFF3E0,stroke:#F57C00,stroke-width:2px,stroke-dasharray: 5 5
     style core fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,stroke-dasharray: 5 5
@@ -365,13 +376,16 @@ AWS_ACCESS_KEY=...
 
 ---
 
-## Current Status
+## Current Status (Updated: 2025-12-05)
 
 ✅ **Database:** SQLite (local) + PostgreSQL (ready for production)  
 ✅ **Storage:** Local FS (working) + Cloudflare R2 (ready for production)  
-✅ **Queue:** In-memory (working) + Redis (ready for production)
+✅ **Queue:** In-memory (working) + Redis (ready for production)  
+✅ **Vector Search:** ChromaDB + sentence-transformers (v2.0)  
+✅ **Full-Text Search:** SQLite FTS5 with BM25 ranking (v2.0)  
+✅ **PDF Processing:** pdf2image + Poppler (v2.0)
 
-**Next:** ML processing layer (OCR) - same modular pattern
+**Next:** LLM layer (Ollama) - same modular pattern
 
 ---
 
@@ -379,7 +393,7 @@ AWS_ACCESS_KEY=...
 
 **Easy to add:**
 - Cache layer (local → Redis → Memcached)
-- Search (local → Elasticsearch → TypeSense)
+- LLM (Ollama → HuggingFace API)
 - Analytics (local logs → PostHog → Mixpanel)
 - Auth (no auth → JWT → OAuth → Auth0)
 
