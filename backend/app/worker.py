@@ -16,6 +16,7 @@ from app.services.storage import get_storage_service
 from app.services.ocr import get_ocr_service
 # Note: PII detection removed - was Presidio-based, now handled by SecurityUtils
 from app.services.governance import GovernanceService
+from app.services.vector import get_vector_service, ENABLE_VECTOR_SEARCH
 from app.models.job import Job, OCRResult
 
 
@@ -152,6 +153,25 @@ async def process_document_task(task_data: dict, db: Session):
         
         db.commit()
         print(f"Job {job_id} completed successfully!")
+        
+        # 5. Generate vector embedding (if enabled)
+        if ENABLE_VECTOR_SEARCH:
+            try:
+                print("Generating document embedding...")
+                vector_service = get_vector_service()
+                vector_service.add_document(
+                    job_id=str(job.id),
+                    text=result.full_text,
+                    metadata={
+                        "filename": job.filename,
+                        "language": result.language,
+                        "confidence": result.average_confidence
+                    }
+                )
+                print(f"Embedding generated for job {job_id}")
+            except Exception as e:
+                print(f"Warning: Failed to generate embedding: {e}")
+                # Don't fail the job - vector search is optional
         
         # Cleanup temp file if needed
         if settings.STORAGE_TYPE != "local" and 'temp_path' in locals():

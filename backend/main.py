@@ -42,6 +42,10 @@ app.include_router(jobs.router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["
 from app.api.routes import admin
 app.include_router(admin.router, prefix=f"{settings.API_V1_PREFIX}/admin", tags=["admin"])
 
+# Vector Search Router (Feature-flagged)
+from app.api.routes import vector
+app.include_router(vector.router, prefix=f"{settings.API_V1_PREFIX}", tags=["vector-search"])
+
 # Serve uploaded files as-static content
 import os
 uploads_dir = os.path.join(os.path.dirname(__file__), "data", "uploads")
