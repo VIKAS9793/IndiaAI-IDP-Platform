@@ -147,14 +147,14 @@ async def hybrid_search(
     if vector_weight > 0 and is_vector_enabled():
         try:
             vector_svc = get_vector_service()
-            vector_results = vector_svc.search_similar_text(request.query, n_results=request.limit * 2)
+            vector_results = vector_svc.find_similar(request.query, n_results=request.limit * 2)
             
             for vr in vector_results:
                 job_id = vr.get("job_id", "")
                 if job_id not in results_map:
                     results_map[job_id] = {
                         "job_id": job_id,
-                        "text_snippet": vr.get("text", "")[:200],
+                        "text_snippet": vr.get("text", "")[:200] if vr.get("text") else "",
                         "fts_score": 0.0,
                         "vector_score": vr.get("similarity", 0.0),
                         "language": None
