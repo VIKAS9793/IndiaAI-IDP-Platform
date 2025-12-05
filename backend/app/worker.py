@@ -247,6 +247,26 @@ async def process_document_task(task_data: dict, db: Session):
                 print(f"   ✗ Embedding failed: {e}")
                 # Don't fail the job - vector search is optional
         
+        # 6. Index for full-text search (if enabled)
+        ENABLE_FTS = os.getenv("ENABLE_FULLTEXT_SEARCH", "false").lower() == "true"
+        if ENABLE_FTS:
+            step_start = time.time()
+            try:
+                print("🔍 Step 6: Indexing for full-text search...")
+                from app.services.search import get_fts_service
+                fts_service = get_fts_service()
+                fts_service.index_document(
+                    db=db,
+                    job_id=str(job.id),
+                    full_text=result.full_text,
+                    language=result.language or "en"
+                )
+                timings['fts'] = round(time.time() - step_start, 2)
+                print(f"   ✓ FTS Index: {timings['fts']}s")
+            except Exception as e:
+                print(f"   ✗ FTS indexing failed: {e}")
+                # Don't fail the job - FTS is optional
+        
         # Print pipeline summary
         total_time = round(time.time() - pipeline_start, 2)
         print(f"\n{'='*60}")
@@ -257,6 +277,8 @@ async def process_document_task(task_data: dict, db: Session):
         print(f"   🛡️  Governance: {timings.get('governance', 'N/A')}s")
         if 'embedding' in timings:
             print(f"   🧠 Embedding:  {timings.get('embedding', 'N/A')}s")
+        if 'fts' in timings:
+            print(f"   🔍 FTS Index:  {timings.get('fts', 'N/A')}s")
         print(f"   📊 Confidence: {result.average_confidence * 100:.1f}%")
         print(f"{'='*60}\n")
         
