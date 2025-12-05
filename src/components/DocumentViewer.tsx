@@ -32,6 +32,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         setNumPages(numPages);
     };
 
+    const isPDF = fileType?.toLowerCase().includes('pdf');
+
     // Draw bounding boxes on canvas
     useEffect(() => {
         if (!canvasRef.current || !pageRef.current || textBlocks.length === 0) return;
@@ -40,28 +42,44 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Get the rendered PDF page dimensions
-        const pageElement = pageRef.current.querySelector('.react-pdf__Page__canvas') as HTMLCanvasElement;
-        if (!pageElement) return;
+        // Get the rendered image/PDF page dimensions
+        let imageElement: HTMLCanvasElement | HTMLImageElement | null = null;
 
-        // Set canvas size to match PDF rendering
-        canvas.width = pageElement.width;
-        canvas.height = pageElement.height;
-        canvas.style.width = `${pageElement.offsetWidth}px`;
-        canvas.style.height = `${pageElement.offsetHeight}px`;
+        if (isPDF) {
+            imageElement = pageRef.current.querySelector('.react-pdf__Page__canvas') as HTMLCanvasElement;
+        } else {
+            imageElement = pageRef.current.querySelector('img') as HTMLImageElement;
+        }
+
+        if (!imageElement) return;
+
+        // Get actual rendered dimensions
+        const renderedWidth = imageElement.offsetWidth || imageElement.width;
+        const renderedHeight = imageElement.offsetHeight || imageElement.height;
+
+        // Get natural/original image dimensions for scaling
+        const naturalWidth = 'naturalWidth' in imageElement ? imageElement.naturalWidth : imageElement.width;
+        const naturalHeight = 'naturalHeight' in imageElement ? imageElement.naturalHeight : imageElement.height;
+
+        // Set canvas size to match rendered size
+        canvas.width = renderedWidth;
+        canvas.height = renderedHeight;
+        canvas.style.width = `${renderedWidth}px`;
+        canvas.style.height = `${renderedHeight}px`;
 
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Calculate scale factors: bbox coords are in original image space
+        const scaleX = renderedWidth / naturalWidth;
+        const scaleY = renderedHeight / naturalHeight;
 
         // Draw each bounding box
         textBlocks.forEach((block, index) => {
             const bbox = block.bbox;
             const isHovered = hoveredBlock === index;
 
-            // Scale coordinates
-            const scaleX = canvas.width / 1000; // Adjust based on your image dimensions
-            const scaleY = canvas.height / 1000;
-
+            // Apply scaling
             const x = bbox.x * scaleX;
             const y = bbox.y * scaleY;
             const width = bbox.width * scaleX;
@@ -88,7 +106,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 ctx.fillText(badgeText, x, y - 5);
             }
         });
-    }, [textBlocks, hoveredBlock, scale]);
+    }, [textBlocks, hoveredBlock, scale, isPDF]);
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!canvasRef.current) return;
@@ -138,8 +156,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
         setHoveredBlock(hoveredIndex >= 0 ? hoveredIndex : null);
     };
-
-    const isPDF = fileType?.toLowerCase().includes('pdf');
 
     return (
         <div className="relative">

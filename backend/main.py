@@ -42,6 +42,14 @@ app.include_router(jobs.router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["
 from app.api.routes import admin
 app.include_router(admin.router, prefix=f"{settings.API_V1_PREFIX}/admin", tags=["admin"])
 
+# Vector Search Router (Feature-flagged)
+from app.api.routes import vector
+app.include_router(vector.router, prefix=f"{settings.API_V1_PREFIX}", tags=["vector-search"])
+
+# Full-Text Search Router (Feature-flagged)
+from app.api.routes import search
+app.include_router(search.router, tags=["fulltext-search"])
+
 # Serve uploaded files as-static content
 import os
 uploads_dir = os.path.join(os.path.dirname(__file__), "data", "uploads")
@@ -66,6 +74,31 @@ async def startup_event():
         from app.worker import run_worker
         import asyncio
         asyncio.create_task(run_worker())
+    
+    # Pre-warm embedding model if vector search enabled
+    if os.getenv("ENABLE_VECTOR_SEARCH", "false").lower() == "true":
+        try:
+            print("🧠 Pre-warming embedding model...")
+            from app.services.vector import get_vector_service
+            vector_service = get_vector_service()
+            vector_service._lazy_init()
+            print("   ✓ Embedding model ready")
+        except Exception as e:
+            print(f"   ⚠️ Embedding pre-warm failed: {e}")
+    
+    # Initialize FTS5 table if full-text search enabled
+    if os.getenv("ENABLE_FULLTEXT_SEARCH", "false").lower() == "true":
+        try:
+            print("🔍 Initializing FTS5 full-text search...")
+            from app.services.search import get_fts_service
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            fts_service = get_fts_service()
+            fts_service.initialize_fts_table(db)
+            db.close()
+            print("   ✓ FTS5 search ready")
+        except Exception as e:
+            print(f"   ⚠️ FTS5 initialization failed: {e}")
 
     # Initialize Scheduler for Cleanup Tasks
     from apscheduler.schedulers.asyncio import AsyncIOScheduler

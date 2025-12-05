@@ -5,7 +5,72 @@ All notable changes to the IndiaAI IDP Platform will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - v2.0-dev
+
+### 🚀 Added
+
+#### Smart Search (Phase 1 & 2)
+- **ChromaDB Vector Search** - Semantic document similarity using sentence-transformers
+  - Endpoint: `GET /api/jobs/{id}/similar` - Find similar documents
+  - Endpoint: `POST /api/search/semantic` - Semantic text search
+  - Endpoint: `GET /api/vector/stats` - Vector store statistics
+  - Embedding model: `all-MiniLM-L6-v2` (384 dimensions)
+  - Feature flag: `ENABLE_VECTOR_SEARCH=true`
+
+- **SQLite FTS5 Full-Text Search** - Zero-dependency keyword search
+  - Endpoint: `POST /api/search/text` - Full-text keyword search
+  - Endpoint: `POST /api/search/hybrid` - Combined FTS5 + vector search
+  - Endpoint: `GET /api/search/stats` - Index statistics
+  - BM25 ranking algorithm
+  - Feature flag: `ENABLE_FULLTEXT_SEARCH=true`
+
+#### PDF Processing
+- **pdf2image integration** - PDF to image conversion for OCR
+- **Multi-page PDF support** - Automatic page merging
+- **Poppler integration** - Native PDF rendering (150 DPI)
+
+#### Performance Optimizations
+- **Embedding pre-warming** - Model loaded on startup (6s → 1.6s latency)
+- **Pipeline instrumentation** - Detailed timing logs for all stages
+- **Fast FTS indexing** - Sub-second document indexing
+
+### 🔧 Changed
+
+#### Backend
+- `backend/app/services/vector.py` - New VectorService for ChromaDB
+- `backend/app/services/search.py` - New FTS5SearchService
+- `backend/app/services/ocr.py` - Added PDF conversion functions
+- `backend/app/worker.py` - Integrated vector/FTS indexing after OCR
+- `backend/main.py` - Added router registration and service initialization
+
+#### Frontend
+- `src/components/DocumentViewer.tsx` - Fixed bounding box scaling
+
+### 📊 New Dependencies
+
+```txt
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+pdf2image>=1.16.0
+```
+
+**External requirement:** Poppler (for PDF rendering on Windows)
+
+### 📈 Performance Metrics
+
+| Metric | Before | After |
+|--------|--------|-------|
+| PDF Confidence | N/A | 96%+ |
+| Pipeline Time | ~42s | ~17-21s |
+| First Embedding | 6s | 1.6s |
+| FTS Index | N/A | <0.1s |
+
+### 🛡️ Security
+
+- Zero new network ports (FTS5 uses existing SQLite)
+- Query sanitization prevents FTS injection attacks
+- Same audit scope as existing database
+- India AI Governance Guidelines compliant
 
 ## [0.1.1] - 2025-12-04
 
