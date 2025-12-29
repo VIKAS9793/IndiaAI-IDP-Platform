@@ -218,7 +218,7 @@ sequenceDiagram
         API-->>UI: List of jobs
         U->>UI: Edit text, Approve/Reject
         UI->>API: PATCH /jobs/{id}/review
-        API->>DB: Update ground_truth.json
+        API->>DB: Update Job Status
     end
     
     UI->>U: Display final results
@@ -376,11 +376,12 @@ AWS_ACCESS_KEY=...
 
 ---
 
-## Current Status (Updated: 2025-12-05)
+## Current Status (Updated: 2025-12-29)
 
-✅ **Database:** SQLite (local) + PostgreSQL (ready for production)  
+✅ **Database:** SQLite (local/tested) + PostgreSQL (ready for production)  
 ✅ **Storage:** Local FS (working) + Cloudflare R2 (ready for production)  
 ✅ **Queue:** In-memory (working) + Redis (ready for production)  
+✅ **OCR:** PaddleOCR (PP-OCRv5) + LangChain Integration (working)
 ✅ **Vector Search:** ChromaDB + sentence-transformers (v2.0)  
 ✅ **Full-Text Search:** SQLite FTS5 with BM25 ranking (v2.0)  
 ✅ **PDF Processing:** pdf2image + Poppler (v2.0)

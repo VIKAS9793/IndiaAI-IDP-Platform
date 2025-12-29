@@ -18,6 +18,8 @@ Pillow==10.3.0  # Updated from 10.1.0 - fixes buffer overflow CVE
 # Upgraded to 3.0.0 (2.6.1 not available on PyPI for Windows)
 paddlepaddle==3.0.0  # Latest stable, fixes all known vulnerabilities
 paddleocr==2.7.3
+langchain==0.1.0         # Required by paddlex/paddleocr legacy code
+langchain-community==0.0.10 # Required for docstore compatibility
 
 # Note: Presidio removed due to numpy 2.x incompatibility with PaddlePaddle 3.0
 # PII protection provided by SecurityUtils (app/core/security_utils.py)

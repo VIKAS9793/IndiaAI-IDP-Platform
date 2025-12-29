@@ -51,6 +51,8 @@ pip install -r requirements.txt
 - `numpy<2.0.0` (auto-installed, required for PaddlePaddle)
 - `Pillow==10.3.0` (security patch)
 - `python-multipart==0.0.9` (security patch)
+- `langchain==0.1.0` (required for PaddleOCR)
+- `langchain-community==0.0.10` (required for PaddleOCR)
 
 ### Database Setup
 
@@ -60,11 +62,11 @@ Initialize SQLite database and create required tables:
 # Run migrations
 alembic upgrade head
 
-# Create audit_logs table (if missing)
+# Create audit_logs table (Optional - handled automatically on server startup)
 python scripts/create_audit_table.py
 ```
 
-**Note:** If `alembic upgrade head` doesn't create all tables, the `scripts/create_audit_table.py` script will create the missing `audit_logs` table.
+**Note:** The system now automatically checks for and creates missing tables (`audit_logs`, `jobs`) when the server starts. You can manually run the script if needed.
 
 ### Running the Server
 ```bash

@@ -79,6 +79,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Legal disclaimers preserved and enhanced
 - ✅ Bilingual support (English/Hindi) in footer
 
+#### 🛠️ Backend & Infrastructure Fixes
+
+- **PaddleOCR Compatibility:** Added `langchain` and `langchain-community` dependencies to support PaddleOCR 3.0/PP-OCRv5 workflows.
+- **Dependency Constraints:** Verified and enforced `numpy<2.0.0` to prevent PaddlePaddle crashes.
+- **Database Initialization:** Fixed startup sequence to consistently create `audit_logs` and `jobs` tables if missing.
+- **Startup Logic:** Consolidated duplicate startup events in `main.py` for reliable service initialization.
+- **Security:** Enhanced file extension validation logic and sanitization.
+
 #### 📄 Documentation Updates
 
 - Updated `README.md` with UX4G screenshots and tech stack

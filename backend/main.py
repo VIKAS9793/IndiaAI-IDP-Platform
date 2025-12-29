@@ -41,6 +41,8 @@ app.add_middleware(
 # Startup event
 @app.on_event("startup")
 async def startup_event():
+    """Initialize services and database on startup"""
+    # 1. Initialize Logging
     logger.info(
         "Application starting",
         extra={
@@ -51,11 +53,72 @@ async def startup_event():
             "storage_type": settings.STORAGE_TYPE
         }
     )
+    print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} starting...")
+
+    # 2. Database Initialization (Create Tables)
+    from app.core.database import Base, engine
+    # Import models to ensure they are registered with Base.metadata
+    import app.models.job        # Register Job, OCRResult
+    import app.models.audit_log  # Register AuditLog
+    
+    print("📦 Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("   ✓ Tables created/verified")
+    
+    # Log database type
+    db_info = f"SQLite ({settings.SQLITE_DB_PATH})" if settings.DATABASE_TYPE == "sqlite" else "PostgreSQL"
+    print(f"📊 Database: {db_info}")
+
+    # 3. Start worker in background (Memory Queue only)
+    if settings.QUEUE_TYPE == "memory":
+        from app.worker import run_worker
+        import asyncio
+        asyncio.create_task(run_worker())
+        print(f"🔄 Queue: Memory (Worker started)")
+    else:
+        print(f"🔄 Queue: {settings.QUEUE_TYPE.capitalize()}")
+
+    # 4. Feature Initialization
+    # Pre-warm embedding model
+    if os.getenv("ENABLE_VECTOR_SEARCH", "false").lower() == "true":
+        try:
+            print("🧠 Pre-warming embedding model...")
+            from app.services.vector import get_vector_service
+            get_vector_service()._lazy_init()
+            print("   ✓ Embedding model ready")
+        except Exception as e:
+            print(f"   ⚠️ Embedding pre-warm failed: {e}")
+            
+    # Initialize FTS5
+    if os.getenv("ENABLE_FULLTEXT_SEARCH", "false").lower() == "true":
+        try:
+            print("🔍 Initializing FTS5 full-text search...")
+            from app.services.search import get_fts_service
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            get_fts_service().initialize_fts_table(db)
+            db.close()
+            print("   ✓ FTS5 search ready")
+        except Exception as e:
+            print(f"   ⚠️ FTS initialization failed: {e}")
+
+    # 5. Initialize Scheduler
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from app.services.cleanup_service import run_cleanup_jobs, run_cleanup_audit, run_cleanup_orphaned
+    
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(run_cleanup_jobs, 'cron', hour=2, minute=0, id='cleanup_jobs')
+    scheduler.add_job(run_cleanup_audit, 'cron', day_of_week='sun', hour=3, minute=0, id='cleanup_audit')
+    scheduler.add_job(run_cleanup_orphaned, 'cron', day_of_week='sun', hour=4, minute=0, id='cleanup_orphaned')
+    scheduler.start()
+    print("⏰ Scheduler started")
+
 
 # Shutdown event  
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Application shutting down")
+    print("👋 Shutting down...")
 
 # Include routers
 app.include_router(health.router, tags=["health"])
@@ -81,92 +144,7 @@ os.makedirs(uploads_dir, exist_ok=True)
 app.mount("/data/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on startup"""
-    print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} starting...")
-    
-    # Log database type
-    db_info = f"SQLite ({settings.SQLITE_DB_PATH})" if settings.DATABASE_TYPE == "sqlite" else "PostgreSQL"
-    print(f"📊 Database: {db_info}")
-    print(f"🔍 Resolved DB URL: {settings.database_url}")
-    print(f"💾 Storage: {settings.STORAGE_TYPE.capitalize()}")
-    print(f"🔄 Queue: {settings.QUEUE_TYPE.capitalize()}")
-    
-    # Start worker in background if using memory queue (Single process mode)
-    if settings.QUEUE_TYPE == "memory":
-        from app.worker import run_worker
-        import asyncio
-        asyncio.create_task(run_worker())
-    
-    # Pre-warm embedding model if vector search enabled
-    if os.getenv("ENABLE_VECTOR_SEARCH", "false").lower() == "true":
-        try:
-            print("🧠 Pre-warming embedding model...")
-            from app.services.vector import get_vector_service
-            vector_service = get_vector_service()
-            vector_service._lazy_init()
-            print("   ✓ Embedding model ready")
-        except Exception as e:
-            print(f"   ⚠️ Embedding pre-warm failed: {e}")
-    
-    # Initialize FTS5 table if full-text search enabled
-    if os.getenv("ENABLE_FULLTEXT_SEARCH", "false").lower() == "true":
-        try:
-            print("🔍 Initializing FTS5 full-text search...")
-            from app.services.search import get_fts_service
-            from app.core.database import SessionLocal
-            db = SessionLocal()
-            fts_service = get_fts_service()
-            fts_service.initialize_fts_table(db)
-            db.close()
-            print("   ✓ FTS5 search ready")
-        except Exception as e:
-            print(f"   ⚠️ FTS5 initialization failed: {e}")
 
-    # Initialize Scheduler for Cleanup Tasks
-    from apscheduler.schedulers.asyncio import AsyncIOScheduler
-    from app.services.cleanup_service import run_cleanup_jobs, run_cleanup_audit, run_cleanup_orphaned
-    
-    scheduler = AsyncIOScheduler()
-    
-    # 1. Cleanup Expired Jobs (Daily at 02:00 UTC)
-    scheduler.add_job(
-        run_cleanup_jobs, 
-        'cron', 
-        hour=2, 
-        minute=0, 
-        id='cleanup_jobs'
-    )
-    
-    # 2. Cleanup Old Audit Logs (Weekly on Sunday at 03:00 UTC)
-    scheduler.add_job(
-        run_cleanup_audit, 
-        'cron', 
-        day_of_week='sun', 
-        hour=3, 
-        minute=0, 
-        id='cleanup_audit'
-    )
-    
-    # 3. Cleanup Orphaned Files (Weekly on Sunday at 04:00 UTC)
-    scheduler.add_job(
-        run_cleanup_orphaned, 
-        'cron', 
-        day_of_week='sun', 
-        hour=4, 
-        minute=0, 
-        id='cleanup_orphaned'
-    )
-    
-    scheduler.start()
-    print("⏰ Scheduler started: Cleanup tasks scheduled.")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    print("👋 Shutting down...")
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@
 ```bash
 cd backend
 alembic upgrade head
+# Or simply restart the server (Ctrl+C and run uvicorn again) - missing tables are auto-created on startup.
 ```
 
 ### 3. Worker Crashes with "Not enough values to unpack"
