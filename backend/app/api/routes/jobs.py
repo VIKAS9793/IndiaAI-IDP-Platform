@@ -4,6 +4,7 @@ Jobs router - Get job status and results
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
+from app.core.logging_config import get_logger
 from app.models.job import Job, OCRResult
 from app.schemas.job import JobResponse, JobResultsResponse, OCRResultResponse
 from app.services.audit import AuditService
@@ -12,6 +13,7 @@ from uuid import UUID
 import json
 
 router = APIRouter()
+logger = get_logger(__name__)
 
 
 @router.get("/{job_id}", response_model=JobResponse)
@@ -68,7 +70,7 @@ def get_job_results(
             request=request
         )
     except Exception as e:
-        print(f"Audit log failed: {e}")
+        logger.error(f"Audit log failed: {e}", exc_info=True, extra={"job_id": job_id})
     
     # Get all OCR results for this job
     ocr_results = db.query(OCRResult).filter(
@@ -146,7 +148,7 @@ def submit_job_review(
             request=request
         )
     except Exception as e:
-        print(f"Audit log failed: {e}")
+        logger.error(f"Audit log failed: {e}", exc_info=True, extra={"job_id": job_id})
         
     db.commit()
     db.refresh(job)

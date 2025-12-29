@@ -10,6 +10,13 @@ from dataclasses import dataclass
 import tempfile
 import os
 from app.core.config import settings
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
+
+# TODO: Migrate progress print() statements to logger.info() in next sprint  
+# Currently keeping print() for PDF conversion progress (helpful during dev)
+# Priority: Critical error/crash logging migrated below
 
 
 def convert_pdf_to_images(pdf_path: Path, dpi: int = 150) -> List[Path]:
@@ -206,7 +213,7 @@ class PaddleOCRService(OCRService):
         except ValueError as ve:
             # Specific catch for unpacking error
             err_msg = f"PaddleOCR ValueError (Unpacking): {ve}"
-            print(err_msg)
+            logger.error(err_msg, exc_info=True, extra={"image_path": str(image_path)})
             # Return empty result instead of crashing
             processing_time = time.time() - start_time
             return OCRResult(
@@ -217,7 +224,11 @@ class PaddleOCRService(OCRService):
                 processing_time=processing_time
             )
         except Exception as e:
-            print(f"PaddleOCR CRASH: {e}")
+            logger.error(
+                "PaddleOCR processing crashed",
+                exc_info=True,
+                extra={"image_path": str(image_path), "lang_code": lang_code}
+            )
             raise e
         
         # Process results

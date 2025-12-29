@@ -1,3 +1,16 @@
+# === SECURITY - CRITICAL ===
+# Environment files containing secrets (MUST BE IGNORED)
+.env
+*.env
+.env.*
+.env.local
+.env.production
+.env.development
+backend/.env
+backend/.env.*
+!backend/.env.example
+!**/.env.template
+
 # Python
 __pycache__/
 *.py[cod]

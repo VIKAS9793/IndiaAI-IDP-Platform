@@ -56,8 +56,15 @@ async def upload_document(
             detail=f"File size {file_size} bytes exceeds maximum {settings.MAX_FILE_SIZE} bytes (25MB)"
         )
     
-    # Generate file key for storage
-    file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'bin'
+    # Validate and extract file extension securely
+    file_extension = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if not file_extension or file_extension not in settings.SAFE_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file extension '{file_extension}'. Allowed: {', '.join(sorted(settings.SAFE_EXTENSIONS))}"
+        )
+    
+    # Generate secure file key for storage
     file_key = f"{uuid.uuid4()}.{file_extension}"
     
     # Upload to storage (modular: local or R2)
@@ -65,9 +72,10 @@ async def upload_document(
     try:
         storage_url = await storage_service.upload(file_key, file_content, file.content_type)
     except Exception as e:
+        # TODO: Replace with logger once logging is implemented
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to upload file: {str(e)}"
+            detail="Failed to upload file. Please contact support."
         )
     
     # Convert consent to boolean

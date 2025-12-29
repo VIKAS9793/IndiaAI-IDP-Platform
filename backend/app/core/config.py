@@ -3,6 +3,7 @@ Configuration settings for the application
 Supports modular database backend: SQLite (dev/MVP) or PostgreSQL (production)
 """
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from typing import Optional
 import os
 from pathlib import Path
@@ -13,8 +14,8 @@ class Settings(BaseSettings):
     
     # App
     APP_NAME: str = "IndiaAI IDP Platform"
-    APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    APP_VERSION: str = "3.0.0"
+    DEBUG: bool = Field(default=False, description="Debug mode - set via DEBUG env var")
     
     # API
     API_V1_PREFIX: str = "/api"
@@ -59,6 +60,7 @@ class Settings(BaseSettings):
     # File upload limits
     MAX_FILE_SIZE: int = 25 * 1024 * 1024  # 25MB
     ALLOWED_FILE_TYPES: list = ["application/pdf", "image/png", "image/jpeg", "image/tiff"]
+    SAFE_EXTENSIONS: set = {"pdf", "png", "jpg", "jpeg", "tiff", "tif"}  # Whitelist for security
     
     # OCR Configuration (Modular backend)
     OCR_BACKEND: str = "paddle"  # "paddle" (fast, CPU) or "easyocr" (accurate, slower)

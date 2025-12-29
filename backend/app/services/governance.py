@@ -89,5 +89,7 @@ class GovernanceService:
                 "consent_verified": job.consent_verified,
                 "data_retention": str(job.data_retention_policy)
             },
-            "contact": "grievance@indiaai.gov.in"
+            "contact": "vikassahani17@gmail.com",  # Actual maintainer
+            "disclaimer": "PROTOTYPE - Not affiliated with or endorsed by Government of India",
+            "source_code": "https://github.com/VIKAS9793/IndiaAI-IDP-Platform"
         }

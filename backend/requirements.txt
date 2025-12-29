@@ -3,6 +3,7 @@ uvicorn[standard]==0.25.0
 python-multipart==0.0.18  # Updated from 0.0.6 - fixes ReDoS CVE
 pydantic==2.5.3
 pydantic-settings==2.1.0
+python-json-logger>=2.0.7
 
 # Database
 sqlalchemy==2.0.25

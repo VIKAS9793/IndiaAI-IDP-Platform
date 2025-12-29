@@ -5,7 +5,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
+from app.core.logging_config import setup_logging, get_logger
 from app.api.routes import health, upload, jobs
+import os
+
+# Initialize structured logging
+log_level = "DEBUG" if settings.DEBUG else "INFO"
+json_logs = not settings.DEBUG  # JSON in production, pretty in dev
+setup_logging(level=log_level, json_logs=json_logs)
+logger = get_logger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
@@ -30,8 +38,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Debug: Print CORS origins on startup
-print(f"🌐 CORS Origins: {['http://localhost:5173', 'http://localhost:4173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:4173', 'http://127.0.0.1:5174']}")
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    logger.info(
+        "Application starting",
+        extra={
+            "app_name": settings.APP_NAME,
+            "version": settings.APP_VERSION, 
+            "debug": settings.DEBUG,
+            "database_type": settings.DATABASE_TYPE,
+            "storage_type": settings.STORAGE_TYPE
+        }
+    )
+
+# Shutdown event  
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Application shutting down")
 
 # Include routers
 app.include_router(health.router, tags=["health"])

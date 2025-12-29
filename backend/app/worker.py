@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import SessionLocal
+from app.core.logging_config import get_logger
 from app.services.queue import get_queue_service
 from app.services.storage import get_storage_service
 from app.services.ocr import get_ocr_service
@@ -19,6 +20,11 @@ from app.services.governance import GovernanceService
 from app.services.vector import get_vector_service, ENABLE_VECTOR_SEARCH
 from app.models.job import Job, OCRResult
 
+logger = get_logger(__name__)
+
+# TODO: Migrate progress print() statements to logger.info() in next sprint
+# Currently keeping print() for development visibility (pipeline steps, page progress)
+# Priority: Replace error/crash logging first (security/monitoring critical)
 
 async def process_document_task(task_data: dict, db: Session):
     """
@@ -138,7 +144,12 @@ async def process_document_task(task_data: dict, db: Session):
             if pdf_image_paths:
                 from app.services.ocr import cleanup_temp_images
                 cleanup_temp_images(pdf_image_paths)
-            print(f"CRASH IN WORKER DURING OCR CALL: {e}")
+            
+            logger.error(
+                "OCR processing crashed",
+                exc_info=True,
+                extra={"job_id": job_id, "file_key": file_key}
+            )
             raise e
         
         job.progress = 60
@@ -287,8 +298,14 @@ async def process_document_task(task_data: dict, db: Session):
             os.remove(temp_path)
             
     except Exception as e:
-        print(f"Error processing job {job_id}: {str(e)}")
-        traceback.print_exc()
+        # Log the full error for debugging
+        logger.error(
+            f"Job processing failed: {job_id}",
+            exc_info=True,
+            extra={"job_id": job_id, "error": str(e), "traceback": traceback.format_exc()}
+        )
+        
+        # Update job status
         job.status = "failed"
         job.error_message = str(e)
         db.commit()
