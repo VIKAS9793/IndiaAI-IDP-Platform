@@ -49,7 +49,6 @@ class TestUploadSecurity:
         assert response.status_code == 400
         assert "File type" in response.json()["detail"] and "not allowed" in response.json()["detail"]
         
-    @pytest.mark.skip(reason="Integration test - requires full DB setup")
     def test_valid_pdf_extension_accepted(self, client):
         """Test that valid PDF extension is accepted (up to storage)"""
         file_content = b"%PDF-1.4 fake pdf content"
@@ -61,30 +60,22 @@ class TestUploadSecurity:
             "consent": "true"
         }
         
-        with patch('app.api.routes.upload.get_db') as mock_db:
-            with patch('app.services.storage.get_storage_service') as mock_storage:
-                with patch('app.services.queue.get_queue_service') as mock_queue:
-                    with patch('app.services.audit.AuditService') as mock_audit:
-                        # Mock database session
-                        mock_session = MagicMock()
-                        mock_db.return_value = iter([mock_session])
-                        
-                        # Mock storage service
-                        mock_storage_instance = MagicMock()
-                        mock_storage_instance.upload.return_value = "http://fake-storage-url"
-                        mock_storage.return_value = mock_storage_instance
-                        
-                        # Mock queue service
-                        mock_queue_instance = MagicMock()
-                        mock_queue.return_value = mock_queue_instance
-                        
-                        response = client.post("/api/upload", files=files, data=data)
-                        
-                        # Should succeed
-                        assert response.status_code == 200
-                        assert "job_id" in response.json()
+        # Mock only storage and queue - DB is provided by client fixture
+        with patch('app.services.storage.get_storage_service') as mock_storage:
+            with patch('app.services.queue.get_queue_service') as mock_queue:
+                mock_storage_instance = MagicMock()
+                mock_storage_instance.upload.return_value = "http://fake-storage-url"
+                mock_storage.return_value = mock_storage_instance
                 
-    @pytest.mark.skip(reason="Integration test - requires full DB setup")
+                mock_queue_instance = MagicMock()
+                mock_queue.return_value = mock_queue_instance
+                
+                response = client.post("/api/upload", files=files, data=data)
+                
+                # Should succeed
+                assert response.status_code == 200
+                assert "job_id" in response.json()
+                
     def test_valid_image_extensions_accepted(self, client):
         """Test that valid image extensions are accepted"""
         for ext, mime in [("png", "image/png"), ("jpg", "image/jpeg"), ("jpeg", "image/jpeg")]:
@@ -108,10 +99,9 @@ class TestUploadSecurity:
                     
                     response = client.post("/api/upload", files=files, data=data)
                     
-                    # Should not fail on extension validation
-                    assert response.status_code != 400 or "Invalid file extension" not in response.json().get("detail", "")
+                    # Should succeed
+                    assert response.status_code == 200
                     
-    @pytest.mark.skip(reason="Integration test - requires full DB setup")
     def test_case_insensitive_extension_validation(self, client):
         """Test that extension validation is case-insensitive"""
         file_content = b"%PDF-1.4"
@@ -134,8 +124,8 @@ class TestUploadSecurity:
                 
                 response = client.post("/api/upload", files=files, data=data)
                 
-                # Should not fail on case
-                assert response.status_code != 400 or "Invalid file extension" not in response.json().get("detail", "")
+                # Should succeed
+                assert response.status_code == 200
                 
     def test_file_without_extension_rejected(self, client):
         """Test that files without extensions are rejected"""
