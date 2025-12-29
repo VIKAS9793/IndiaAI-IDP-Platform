@@ -1,7 +1,5 @@
 # 🇮🇳 IndiaAI IDP Platform
 
-![IndiaAI IDP Platform Banner](assets/images/banner.png)
-
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg) ![Python](https://img.shields.io/badge/python-3.10+-blue.svg) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg) ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black) ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 
 > **Product Vision:** India's first "Sovereign-by-Design" Document Intelligence Platform that democratizes AI for every government department, ensuring data never leaves the premise.
@@ -21,27 +19,35 @@ A **self-contained, air-gapped AI platform** that any department can spin up in 
 2.  **Modular:** Starts small (SQLite/Local) but ready to scale (Postgres/S3).
 3.  **Governance-First:** Compliance is code, not a policy document.
 
-## 📸 Product Screenshots
+---
 
-### Homepage
-![Homepage](assets/images/1764427296480.jpg)
-*Landing page with DPDP Act 2023 disclaimer and upload workflow introduction.*
+## 📸 UX4G-Compliant User Interface
 
-### Upload Page - DPDP Compliance UI
-![Upload Page - DPDP Fields](assets/images/1764427296525.jpg)
-*Purpose selection and consent verification enforced before document processing.*
+Our platform now features a **Government of India Design System (UX4G v2.0.8)** compliant interface, ensuring accessibility and consistency with government standards.
 
-### Document Processing & Results
-![OCR Results View](assets/images/1764427296487.jpg)
-*Side-by-side document viewer with extracted text and confidence scores.*
+### Main Dashboard
+![Main UI Overview](assets/images/MAIN%20UI-1.png)
+*Homepage with UX4G navigation, tricolor branding, and legal disclaimers.*
 
-### Document Viewer with Bounding Boxes
-![Document Viewer](assets/images/1764427296504.jpg)
-*PDF viewer with visual bounding boxes highlighting detected text regions.*
+![Main UI Features](assets/images/MAIN%20UI-2.png)
+*Feature showcase with UX4G cards and government-approved color palette.*
 
-### Human-in-the-Loop Review Interface
-![HITL Review Interface](assets/images/1764513828541.jpg)
-*Manual review page for low-confidence extractions with inline editing.*
+### Document Upload Interface
+![Upload Interface - Purpose Selection](assets/images/UPLOAD%20SECTION.png)
+*DPDP Act 2023 compliance: language selection, purpose declaration, and consent verification.*
+
+![Upload Interface - File Handling](assets/images/UPLOAD%20SECTION-2.png)
+*Drag-and-drop upload with UX4G form controls and progress indicators.*
+
+### Legal & Accessibility
+![About Section](assets/images/ABOUT%20SECTION.png)
+*Comprehensive legal disclaimers and prototype notices using UX4G alert components.*
+
+![Disclaimer Section](assets/images/DISCLAIMER%20SECTION.png)
+*Full disclosure page with UX4G cards and government-compliant typography.*
+
+![Accessibility Widget](assets/images/ACCESSIBILITY.png)
+*UX4G Accessibility Widget integration for inclusive design.*
 
 ---
 
@@ -118,7 +124,7 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 
 ---
 
-## 🛠️ Tech Stack (Pilot Implementation)
+## 🛠️ Tech Stack
 
 ### Backend
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white) ![Alembic](https://img.shields.io/badge/Alembic-8A8A8A?style=for-the-badge)
@@ -128,7 +134,7 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 - **Storage:** Local Filesystem / R2 (S3-compatible)
 - **Queue:** In-Memory (dev) / Redis (prod-ready)
 
-### v2.0 Smart Search (NEW)
+### Smart Search (v2.0)
 ![ChromaDB](https://img.shields.io/badge/ChromaDB-FF6F00?style=for-the-badge) ![SQLite FTS5](https://img.shields.io/badge/SQLite_FTS5-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 
 - **Vector Search:** ChromaDB + sentence-transformers (semantic similarity)
@@ -136,13 +142,41 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 - **Hybrid Search:** Combined keyword + semantic results
 - **PDF Processing:** pdf2image + Poppler (multi-page support)
 
-### Frontend
-![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+### Frontend (v3.0 - UX4G Migration)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![UX4G](https://img.shields.io/badge/UX4G-138808?style=for-the-badge&logoColor=white)
+
+**UI Framework:** [**UX4G v2.0.8**](https://ux4g.gov.in/) (Government of India Design System)
+- Official CDN: `https://cdn.ux4g.gov.in/UX4G@2.0.8/`
+- Documentation: [ux4g.gov.in/docs](https://ux4g.gov.in/docs)
+- Font: [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) (Government-approved typography)
+- Accessibility: UX4G Accessibility Widget integrated
+- Icons: Inline SVGs (no external dependencies)
+
+**Migration Stats (Tailwind CSS → UX4G):**
+- ✅ 11 Core Components migrated (Header, Footer, Breadcrumbs, Button, Alert, Card, etc.)
+- ✅ 7 Pages migrated (HomePage, UploadPage, ResultsPage, ReviewPage, etc.)
+- ✅ Tricolor branding and national emblem placeholders
+- ✅ Full UX4G component library compliance
+- ✅ Removed Tailwind CSS and lucide-react dependencies
 
 ### **Future Enhancements (Post-Pilot)**
 - **LLM Structuring:** Ollama (local) for semantic document parsing
 - **JWT Authentication:** Role-based access control
 - **Redis Cache:** Performance optimization
+
+---
+
+## 🏛️ Design System Attribution
+
+This project uses the **UX4G Design System v2.0.8**, developed and maintained by the **Government of India**.
+
+- **Official Website:** [ux4g.gov.in](https://ux4g.gov.in/)
+- **Documentation:** [ux4g.gov.in/docs](https://ux4g.gov.in/docs)
+- **CDN:** [cdn.ux4g.gov.in](https://cdn.ux4g.gov.in/)
+- **License:** UX4G is a government-owned design system for public use
+- **Copyright:** © Government of India. All design system assets and branding are property of the Government of India.
+
+**Note:** This project is an independent prototype and is NOT affiliated with or endorsed by the Government of India or the IndiaAI initiative. The use of UX4G is solely for demonstrating government-compliant UI design patterns.
 
 ---
 
@@ -164,3 +198,6 @@ In the era of Digital India, **Trust is the Product**. We built governance direc
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+**Third-Party Attributions:**
+- UX4G Design System © Government of India
+- Noto Sans Font © Google Fonts (SIL Open Font License 1.1)

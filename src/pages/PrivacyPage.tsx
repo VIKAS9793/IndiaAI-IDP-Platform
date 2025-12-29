@@ -1,29 +1,41 @@
 import React from 'react';
-import { Shield, Eye, Database, Lock } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
+import { Card, CardBody } from '../components/ui/Card';
 
 /**
- * Privacy Policy Page
+ * UX4G Privacy Policy Page Component
+ * 
+ * Compliant with Government of India Design System v2.0.8
  */
 export const PrivacyPage: React.FC = () => {
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Privacy Policy
-            </h1>
-            <p className="text-gray-600 mb-8">
+        <div className="container py-5">
+            <h1 className="display-5 fw-bold mb-2">Privacy Policy</h1>
+            <p className="text-muted mb-4">
                 Understanding how this demonstration handles (or more accurately, doesn't handle) your information.
             </p>
 
             {/* Key Point */}
-            <div className="bg-green-50 border-l-4 border-green-600 p-6 mb-8">
-                <div className="flex items-start gap-3">
-                    <Shield className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <div className="alert alert-success border-start border-success border-4 mb-4">
+                <div className="d-flex align-items-start gap-3">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="flex-shrink-0 mt-1"
+                    >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
                     <div>
-                        <h2 className="text-xl font-bold text-green-900 mb-2">
+                        <h2 className="h5 fw-bold mb-2">
                             ✓ No Data Collection or Processing
                         </h2>
-                        <p className="text-green-800">
+                        <p className="mb-0">
                             This is a front-end demonstration only. We do NOT collect, store, process, or transmit ANY data.
                             There are no backend servers, databases, or analytics.
                         </p>
@@ -32,16 +44,28 @@ export const PrivacyPage: React.FC = () => {
             </div>
 
             {/* What We Don't Do */}
-            <Card className="mb-6">
-                <div className="flex items-start gap-3 mb-4">
-                    <Eye className="h-6 w-6 text-blue-600" />
-                    <h2 className="text-2xl font-bold">What We Don't Do</h2>
-                </div>
-                <div className="space-y-3 text-gray-700">
-                    <p>
-                        This demonstration does NOT:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+            <Card className="mb-4">
+                <CardBody>
+                    <div className="d-flex align-items-start gap-3 mb-3">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-primary"
+                        >
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        <h2 className="h4 fw-bold mb-0">What We Don't Do</h2>
+                    </div>
+                    <p>This demonstration does NOT:</p>
+                    <ul>
                         <li>Collect any personal information</li>
                         <li>Store any uploaded files</li>
                         <li>Transmit any data to servers</li>
@@ -50,137 +74,161 @@ export const PrivacyPage: React.FC = () => {
                         <li>Share information with third parties</li>
                         <li>Process or retain any user data</li>
                     </ul>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Local Storage */}
-            <Card className="mb-6">
-                <div className="flex items-start gap-3 mb-4">
-                    <Database className="h-6 w-6 text-blue-600" />
-                    <h2 className="text-2xl font-bold">Local Storage Usage</h2>
-                </div>
-                <div className="space-y-3 text-gray-700">
-                    <p>
-                        This demonstration uses browser local storage ONLY for:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+            <Card className="mb-4">
+                <CardBody>
+                    <div className="d-flex align-items-start gap-3 mb-3">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-primary"
+                        >
+                            <ellipse cx="12" cy="5" rx="9" ry="3" />
+                            <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+                            <path d="M3 12A9 3 0 0 0 21 12" />
+                        </svg>
+                        <h2 className="h4 fw-bold mb-0">Local Storage Usage</h2>
+                    </div>
+                    <p>This demonstration uses browser local storage ONLY for:</p>
+                    <ul>
                         <li>Storing your acknowledgment of the disclaimer modal</li>
                     </ul>
-                    <p className="mt-4">
-                        This data:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+                    <p className="mt-3">This data:</p>
+                    <ul>
                         <li>Stays on YOUR device only</li>
                         <li>Is never transmitted anywhere</li>
                         <li>Can be cleared by clearing your browser data</li>
                         <li>Contains NO personal information</li>
                     </ul>
-                </div>
+                </CardBody>
             </Card>
 
             {/* File Upload */}
-            <Card className="mb-6 bg-yellow-50 border-yellow-200">
-                <div className="flex items-start gap-3 mb-4">
-                    <Lock className="h-6 w-6 text-yellow-600" />
-                    <h2 className="text-2xl font-bold text-yellow-900">File Upload Demo</h2>
-                </div>
-                <div className="space-y-3 text-yellow-800">
-                    <p className="font-semibold">
+            <Card className="mb-4 bg-warning bg-opacity-10 border-warning">
+                <CardBody>
+                    <div className="d-flex align-items-start gap-3 mb-3">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-warning"
+                        >
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <h2 className="h4 fw-bold mb-0">File Upload Demo</h2>
+                    </div>
+                    <p className="fw-semibold">
                         Important: The file upload feature is for UI demonstration only.
                     </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+                    <ul>
                         <li>Files are NOT uploaded to any server</li>
                         <li>Files are NOT processed in any way</li>
                         <li>Files stay in your browser memory temporarily</li>
                         <li>Files are discarded when you refresh or leave the page</li>
                         <li>No file data leaves your device</li>
                     </ul>
-                    <p className="font-semibold mt-4 text-red-700">
+                    <p className="fw-semibold text-danger mt-3 mb-0">
                         DO NOT upload real, sensitive, or personal documents under any circumstances.
                     </p>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Third-Party Services */}
-            <Card className="mb-6">
-                <h2 className="text-2xl font-bold mb-4">Third-Party Services</h2>
-                <div className="space-y-3 text-gray-700">
-                    <p>
-                        This demonstration may load:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li>Google Fonts (for typography) - subject to Google's privacy policy</li>
+            <Card className="mb-4">
+                <CardBody>
+                    <h2 className="h4 fw-bold mb-3">Third-Party Services</h2>
+                    <p>This demonstration may load:</p>
+                    <ul>
+                        <li>Google Fonts (Noto Sans for UX4G typography) - subject to Google's privacy policy</li>
+                        <li>UX4G CDN (Government of India Design System) - official government resource</li>
                     </ul>
-                    <p className="mt-4 text-sm">
+                    <p className="small mt-3 mb-0">
                         No other third-party services, analytics, or tracking tools are employed.
                     </p>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Not a Privacy Policy */}
-            <Card className="mb-6 border-blue-200 bg-blue-50">
-                <h2 className="text-2xl font-bold text-blue-900 mb-4">This is Not a Real Privacy Policy</h2>
-                <div className="space-y-3 text-blue-800 text-sm">
-                    <p>
+            <Card className="mb-4 bg-primary bg-opacity-10 border-primary">
+                <CardBody>
+                    <h2 className="h4 fw-bold mb-3">This is Not a Real Privacy Policy</h2>
+                    <p className="small">
                         This "privacy policy" is provided for demonstration completeness only.
                     </p>
-                    <p>
+                    <p className="small">
                         Since this is not a real service and collects no data, a traditional privacy policy
                         would not apply. This page exists to show what such a page might look like in a real application.
                     </p>
-                    <p className="font-semibold">
+                    <p className="fw-semibold small mb-0">
                         Again: This demonstration does NOT collect, store, or process ANY user data.
                     </p>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Your Rights */}
-            <Card className="mb-6">
-                <h2 className="text-2xl font-bold mb-4">Your Rights</h2>
-                <div className="space-y-3 text-gray-700">
-                    <p>
-                        Since no data is collected:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+            <Card className="mb-4">
+                <CardBody>
+                    <h2 className="h4 fw-bold mb-3">Your Rights</h2>
+                    <p>Since no data is collected:</p>
+                    <ul>
                         <li>There is no data to access, modify, or delete</li>
                         <li>There are no privacy settings to configure</li>
                         <li>There is no data portability or right to be forgotten (because there's no data)</li>
                     </ul>
-                    <p className="mt-4">
+                    <p className="mt-3 mb-0">
                         You can clear the disclaimer acknowledgment by clearing your browser's local storage for this site.
                     </p>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Contact */}
-            <Card>
-                <h2 className="text-2xl font-bold mb-4">Questions?</h2>
-                <div className="space-y-3 text-gray-700 text-sm">
-                    <p>
+            <Card className="mb-4">
+                <CardBody>
+                    <h2 className="h4 fw-bold mb-3">Questions?</h2>
+                    <p className="small">
                         If you have questions about this demonstration, please remember:
                     </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
+                    <ul className="small">
                         <li>This is NOT an official platform</li>
                         <li>This is for demonstration purposes only</li>
                         <li>No real service or data processing occurs</li>
                     </ul>
-                    <p className="mt-4">
+                    <p className="small mt-3 mb-0">
                         For official IndiaAI information, visit{' '}
                         <a
                             href="https://indiaai.gov.in"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline font-semibold"
+                            className="text-primary fw-semibold"
                         >
                             indiaai.gov.in
                         </a>
                     </p>
-                </div>
+                </CardBody>
             </Card>
 
-            <div className="mt-8 text-center text-xs text-gray-500">
-                <p>Last updated: November 2025</p>
+            <div className="text-center small text-muted mt-5">
+                <p className="mb-0">Last updated: December 2025</p>
             </div>
         </div>
     );
 };
+
+export default PrivacyPage;

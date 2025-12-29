@@ -1,51 +1,219 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+/**
+ * IndiaAI IDP Platform - UX4G Design System Integration
+ * 
+ * Base styles for UX4G v2.0.8 compliance
+ * Replaces Tailwind CSS
+ * 
+ * Reference: https://www.ux4g.gov.in/
+ */
 
-@import "tailwindcss";
-
-@theme {
-  /* Indian tricolor colors */
-  --color-india-saffron: #FF9933;
-  --color-india-white: #FFFFFF;
-  --color-india-green: #138808;
-  --color-india-navy: #000080;
-
-  /* Government website palette */
-  --color-gov-primary: #0056b3;
-  --color-gov-secondary: #6c757d;
-  --color-gov-accent: #ffc107;
-  --color-gov-bg: #f8f9fa;
-  --color-gov-text: #212529;
-
-  /* Font families */
-  --font-family-sans: 'Inter', system-ui, sans-serif;
-  --font-family-heading: 'Poppins', sans-serif;
+/* ========================================
+   1. UX4G Font Override (Noto Sans)
+   ======================================== */
+:root {
+  --ux4g-font-sans: 'Noto Sans', system-ui, -apple-system, sans-serif;
+  
+  /* Indian Tricolor - For branding elements */
+  --india-saffron: #FF9933;
+  --india-white: #FFFFFF;
+  --india-green: #138808;
+  --india-navy: #000080;
+  
+  /* Government Palette (UX4G compatible) */
+  --gov-primary: #0056b3;
+  --gov-secondary: #6c757d;
+  --gov-accent: #ffc107;
+  --gov-bg: #f8f9fa;
+  --gov-text: #212529;
+  
+  /* Prototype Warning Colors */
+  --prototype-red: #dc3545;
+  --prototype-yellow: #ffc107;
 }
 
-@layer base {
-  body {
-    background-color: var(--color-gov-bg);
-    color: var(--color-gov-text);
-    font-family: var(--font-family-sans);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-family-heading);
-  }
+body {
+  font-family: var(--ux4g-font-sans);
+  background-color: var(--gov-bg);
+  color: var(--gov-text);
+  min-height: 100vh;
 }
 
-@layer components {
-  .tricolor-bar {
-    background: linear-gradient(to right,
-        #FF9933 0%,
-        #FF9933 33.33%,
-        #FFFFFF 33.33%,
-        #FFFFFF 66.66%,
-        #138808 66.66%,
-        #138808 100%);
-  }
+/* ========================================
+   2. UX4G Typography
+   ======================================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ux4g-font-sans);
+  font-weight: 600;
+  color: var(--gov-text);
+}
+
+/* ========================================
+   3. Tricolor Bar (Government Identity)
+   ======================================== */
+.tricolor-bar {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--india-saffron) 0%,
+    var(--india-saffron) 33.33%,
+    var(--india-white) 33.33%,
+    var(--india-white) 66.66%,
+    var(--india-green) 66.66%,
+    var(--india-green) 100%
+  );
+}
+
+/* ========================================
+   4. Prototype Badges (Legal Requirement)
+   ======================================== */
+.badge-prototype {
+  background-color: var(--prototype-red) !important;
+  color: white !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+.badge-not-official {
+  background-color: var(--prototype-yellow) !important;
+  color: var(--gov-text) !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+/* ========================================
+   5. UX4G Layout Utilities
+   ======================================== */
+.gov-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.gov-section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* ========================================
+   6. Legal Disclaimer Styles
+   ======================================== */
+.disclaimer-banner {
+  background-color: #842029;
+  border-left: 4px solid var(--prototype-red);
+  color: white;
+  padding: 1rem;
+}
+
+.disclaimer-banner strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* ========================================
+   7. Flex Utilities (UX4G Compatible)
+   ======================================== */
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-center { justify-content: center; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+
+/* ========================================
+   8. Spacing Utilities
+   ======================================== */
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3rem; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+.p-5 { padding: 3rem; }
+
+/* ========================================
+   9. Text Utilities
+   ======================================== */
+.text-center { text-align: center; }
+.text-start { text-align: left; }
+.text-end { text-align: right; }
+
+.text-muted { color: #6c757d; }
+.text-danger { color: var(--prototype-red); }
+.text-warning { color: var(--prototype-yellow); }
+.text-primary { color: var(--gov-primary); }
+
+.fw-bold { font-weight: 700; }
+.fw-semibold { font-weight: 600; }
+.fw-normal { font-weight: 400; }
+
+.fs-1 { font-size: 2.5rem; }
+.fs-2 { font-size: 2rem; }
+.fs-3 { font-size: 1.75rem; }
+.fs-4 { font-size: 1.5rem; }
+.fs-5 { font-size: 1.25rem; }
+.fs-6 { font-size: 1rem; }
+.small { font-size: 0.875rem; }
+
+/* ========================================
+   10. Background Utilities
+   ======================================== */
+.bg-white { background-color: white; }
+.bg-light { background-color: var(--gov-bg); }
+.bg-dark { background-color: #212529; }
+.bg-primary { background-color: var(--gov-primary); }
+.bg-danger { background-color: var(--prototype-red); }
+.bg-warning { background-color: var(--prototype-yellow); }
+
+/* ========================================
+   11. Border Utilities
+   ======================================== */
+.border { border: 1px solid #dee2e6; }
+.border-0 { border: 0; }
+.rounded { border-radius: 0.375rem; }
+.rounded-0 { border-radius: 0; }
+.shadow-sm { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+.shadow { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); }
+
+/* ========================================
+   12. Width/Height Utilities
+   ======================================== */
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+.min-vh-100 { min-height: 100vh; }
+
+/* ========================================
+   13. App Layout
+   ======================================== */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
 }

@@ -1,15 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, AlertCircle, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Card, CardBody } from '../components/ui/Card';
 import api from '../lib/api';
 import { useDropzone } from 'react-dropzone';
 
 /** 
- * Document Upload Page
+ * UX4G Document Upload Page
  * Features: Drag-and-drop, file validation, progress indicator, real backend integration
  * DPDP Compliance: Purpose selection and Consent verification
+ * 
+ * Compliant with Government of India Design System v2.0.8
  */
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
@@ -87,20 +88,21 @@ export const UploadPage: React.FC = () => {
                 navigate(`/results/${response.job_id}`);
             }, 500);
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("[UploadPage] Upload failed:", err);
-            console.error("[UploadPage] Error response:", err.response);
 
             let errorMessage = "Upload failed. Please try again.";
-            if (err.response?.data?.detail) {
-                const detail = err.response.data.detail;
-                if (typeof detail === 'string') {
-                    errorMessage = detail;
-                } else if (Array.isArray(detail)) {
-                    // Handle Pydantic validation errors
-                    errorMessage = detail.map((e: any) => e.msg).join(', ');
-                } else if (typeof detail === 'object') {
-                    errorMessage = JSON.stringify(detail);
+            if (err && typeof err === 'object' && 'response' in err) {
+                const errWithResponse = err as { response?: { data?: { detail?: unknown } } };
+                if (errWithResponse.response?.data?.detail) {
+                    const detail = errWithResponse.response.data.detail;
+                    if (typeof detail === 'string') {
+                        errorMessage = detail;
+                    } else if (Array.isArray(detail)) {
+                        errorMessage = detail.map((e: { msg?: string }) => e.msg || '').join(', ');
+                    } else if (typeof detail === 'object') {
+                        errorMessage = JSON.stringify(detail);
+                    }
                 }
             }
 
@@ -111,197 +113,268 @@ export const UploadPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Upload Documents for Processing
-            </h1>
-            <p className="text-gray-600 mb-8">
+        <div className="container py-5">
+            <h1 className="display-6 fw-bold mb-2">Upload Documents for Processing</h1>
+            <p className="text-muted mb-4">
                 Upload your documents for intelligent processing. This is a demo interface - please do not upload real documents.
             </p>
 
             {/* Language Selector */}
-            <Card className="mb-6">
-                <h2 className="text-lg font-semibold mb-4">Select Processing Language</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                        { value: 'auto', label: 'Auto Detect' },
-                        { value: 'en', label: 'English' },
-                        { value: 'hi', label: 'हिंदी (Hindi)' },
-                        { value: 'ta', label: 'தமிழ் (Tamil)' },
-                    ].map(lang => (
-                        <button
-                            key={lang.value}
-                            onClick={() => setSelectedLanguage(lang.value)}
-                            className={`p-3 border-2 rounded-md transition-all ${selectedLanguage === lang.value
-                                ? 'border-blue-700 bg-blue-50 text-blue-900'
-                                : 'border-gray-300 hover:border-blue-400'
-                                }`}
-                        >
-                            {lang.label}
-                        </button>
-                    ))}
-                </div>
+            <Card className="mb-4">
+                <CardBody>
+                    <h2 className="h5 fw-semibold mb-3">Select Processing Language</h2>
+                    <div className="row g-3">
+                        {[
+                            { value: 'auto', label: 'Auto Detect' },
+                            { value: 'en', label: 'English' },
+                            { value: 'hi', label: 'हिंदी (Hindi)' },
+                            { value: 'ta', label: 'தமிழ் (Tamil)' },
+                        ].map(lang => (
+                            <div className="col-6 col-md-3" key={lang.value}>
+                                <button
+                                    onClick={() => setSelectedLanguage(lang.value)}
+                                    className={`btn w-100 ${selectedLanguage === lang.value
+                                        ? 'btn-primary'
+                                        : 'btn-outline-secondary'
+                                        }`}
+                                >
+                                    {lang.label}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </CardBody>
             </Card>
 
             {/* DPDP Compliance Section */}
-            <Card className="mb-6 border-l-4 border-l-indigo-500">
-                <div className="flex items-center gap-2 mb-4">
-                    <ShieldCheck className="h-6 w-6 text-indigo-600" />
-                    <h2 className="text-lg font-semibold">Governance & Compliance (DPDP Act)</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Purpose of Processing
-                        </label>
-                        <select
-                            value={purpose}
-                            onChange={(e) => setPurpose(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            <Card className="mb-4 border-start border-primary border-4">
+                <CardBody>
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-primary"
                         >
-                            <option value="VERIFICATION">Identity Verification</option>
-                            <option value="KYC">Know Your Customer (KYC)</option>
-                            <option value="BENEFIT_DISTRIBUTION">Benefit Distribution</option>
-                            <option value="EMPLOYMENT">Employment Verification</option>
-                            <option value="TEST">System Testing</option>
-                            <option value="OTHER">Other Legal Purpose</option>
-                        </select>
-                        <p className="text-xs text-gray-500 mt-1">
-                            Specify the lawful purpose for processing this personal data.
-                        </p>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <h2 className="h5 fw-semibold mb-0">Governance & Compliance (DPDP Act)</h2>
                     </div>
 
-                    <div className="flex items-start pt-6">
-                        <div className="flex items-center h-5">
-                            <input
-                                id="consent"
-                                type="checkbox"
-                                checked={consent}
-                                onChange={(e) => setConsent(e.target.checked)}
-                                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                            />
+                    <div className="row g-4">
+                        <div className="col-md-6">
+                            <label className="form-label fw-medium">Purpose of Processing</label>
+                            <select
+                                value={purpose}
+                                onChange={(e) => setPurpose(e.target.value)}
+                                className="form-select"
+                            >
+                                <option value="VERIFICATION">Identity Verification</option>
+                                <option value="KYC">Know Your Customer (KYC)</option>
+                                <option value="BENEFIT_DISTRIBUTION">Benefit Distribution</option>
+                                <option value="EMPLOYMENT">Employment Verification</option>
+                                <option value="TEST">System Testing</option>
+                                <option value="OTHER">Other Legal Purpose</option>
+                            </select>
+                            <div className="form-text">
+                                Specify the lawful purpose for processing this personal data.
+                            </div>
                         </div>
-                        <div className="ml-3 text-sm">
-                            <label htmlFor="consent" className="font-medium text-gray-700">
-                                User Consent Verified
-                            </label>
-                            <p className="text-gray-500">
-                                I confirm that explicit consent has been obtained from the data principal for processing this document for the specified purpose.
-                            </p>
+
+                        <div className="col-md-6 d-flex align-items-start pt-md-4">
+                            <div className="form-check">
+                                <input
+                                    id="consent"
+                                    type="checkbox"
+                                    checked={consent}
+                                    onChange={(e) => setConsent(e.target.checked)}
+                                    className="form-check-input"
+                                />
+                                <label htmlFor="consent" className="form-check-label">
+                                    <span className="fw-medium">User Consent Verified</span>
+                                    <br />
+                                    <small className="text-muted">
+                                        I confirm that explicit consent has been obtained from the data principal for processing this document for the specified purpose.
+                                    </small>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </CardBody>
             </Card>
 
             {/* Upload Area */}
-            <Card>
-                {!file ? (
-                    <div
-                        {...getRootProps()}
-                        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer ${isDragActive
-                            ? 'border-blue-700 bg-blue-50'
-                            : 'border-gray-300 hover:border-blue-400'
-                            }`}
-                    >
-                        <input {...getInputProps()} />
-                        <Upload className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-                        <p className="text-lg font-semibold text-gray-700 mb-2">
-                            Drag and drop files here
-                        </p>
-                        <p className="text-sm text-gray-500 mb-4">
-                            or click to browse
-                        </p>
-                        <Button type="button" variant="primary" className="inline-block">
-                            Select Files
-                        </Button>
-                        <div className="mt-6 text-xs text-gray-500">
-                            <p>Supported formats: PDF, PNG, JPEG, TIFF</p>
-                            <p>Maximum file size: 25MB</p>
+            <Card className="mb-4">
+                <CardBody>
+                    {!file ? (
+                        <div
+                            {...getRootProps()}
+                            className={`border border-2 border-dashed rounded p-5 text-center ${isDragActive
+                                ? 'border-primary bg-primary bg-opacity-10'
+                                : 'border-secondary'
+                                }`}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <input {...getInputProps()} />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="64"
+                                height="64"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-muted mx-auto mb-3"
+                            >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" x2="12" y1="3" y2="15" />
+                            </svg>
+                            <p className="h5 fw-semibold mb-2">Drag and drop files here</p>
+                            <p className="text-muted mb-3">or click to browse</p>
+                            <Button variant="primary">Select Files</Button>
+                            <div className="mt-4 small text-muted">
+                                <p className="mb-1">Supported formats: PDF, PNG, JPEG, TIFF</p>
+                                <p className="mb-0">Maximum file size: 25MB</p>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="mt-6">
-                        <h3 className="font-semibold text-lg mb-4">Selected File</h3>
-                        <div className="flex items-center justify-between p-4 rounded-lg border border-blue-200 bg-blue-50">
-                            <div className="flex items-center gap-3 flex-1">
-                                <FileText className="h-8 w-8 text-blue-600" />
-                                <div className="flex-1">
-                                    <p className="font-medium text-gray-900">
-                                        {file.name}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {formatFileSize(file.size)}
-                                    </p>
+                    ) : (
+                        <div>
+                            <h3 className="h5 fw-semibold mb-3">Selected File</h3>
+                            <div className="d-flex align-items-center justify-content-between p-3 rounded border border-primary bg-primary bg-opacity-10">
+                                <div className="d-flex align-items-center gap-3 flex-grow-1">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="32"
+                                        height="32"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-primary"
+                                    >
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" x2="8" y1="13" y2="13" />
+                                        <line x1="16" x2="8" y1="17" y2="17" />
+                                        <line x1="10" x2="8" y1="9" y2="9" />
+                                    </svg>
+                                    <div className="flex-grow-1">
+                                        <p className="fw-medium mb-0">{file.name}</p>
+                                        <small className="text-muted">{formatFileSize(file.size)}</small>
+                                    </div>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-success"
+                                    >
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="m9 12 2 2 4-4" />
+                                    </svg>
+                                    <button
+                                        onClick={removeFile}
+                                        className="btn btn-link text-danger p-0"
+                                        disabled={isUploading}
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                <button
-                                    onClick={removeFile}
-                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+
+                            {/* Error Message */}
+                            {error && (
+                                <div className="alert alert-danger d-flex align-items-center gap-2 mt-3">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" x2="12" y1="8" y2="12" />
+                                        <line x1="12" x2="12.01" y1="16" y2="16" />
+                                    </svg>
+                                    <span>{error}</span>
+                                </div>
+                            )}
+
+                            {/* Progress Bar */}
+                            {isUploading && (
+                                <div className="mt-4">
+                                    <div className="d-flex justify-content-between small mb-1">
+                                        <span className="fw-medium text-primary">Uploading & Processing...</span>
+                                        <span className="text-primary">{Math.round(uploadProgress)}%</span>
+                                    </div>
+                                    <div className="progress" style={{ height: '10px' }}>
+                                        <div
+                                            className="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"
+                                            style={{ width: `${uploadProgress}%` }}
+                                            aria-valuenow={uploadProgress}
+                                            aria-valuemin={0}
+                                            aria-valuemax={100}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Process Button */}
+                            <div className="d-flex justify-content-end mt-4">
+                                <Button
+                                    variant="primary"
+                                    size="lg"
+                                    onClick={handleUpload}
                                     disabled={isUploading}
                                 >
-                                    Remove
-                                </button>
+                                    {isUploading ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        'Process Document'
+                                    )}
+                                </Button>
                             </div>
                         </div>
-
-                        {/* Error Message */}
-                        {error && (
-                            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2 text-red-700">
-                                <AlertCircle className="h-5 w-5" />
-                                <p className="text-sm">{error}</p>
-                            </div>
-                        )}
-
-                        {/* Progress Bar */}
-                        {isUploading && (
-                            <div className="mt-6">
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span className="font-medium text-blue-700">
-                                        Uploading & Processing...
-                                    </span>
-                                    <span className="text-blue-700">{Math.round(uploadProgress)}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div
-                                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                                        style={{ width: `${uploadProgress}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Process Button */}
-                        <div className="mt-6 flex justify-end">
-                            <Button
-                                variant="primary"
-                                size="lg"
-                                onClick={handleUpload}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Processing...
-                                    </>
-                                ) : (
-                                    'Process Document'
-                                )}
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </CardBody>
             </Card>
 
             {/* Instructions */}
-            <div className="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4">
-                <p className="font-semibold text-blue-900 mb-2">Prototype Mode</p>
-                <p className="text-sm text-blue-800">
+            <div className="alert alert-info border-start border-info border-4">
+                <strong>Prototype Mode</strong>
+                <p className="mb-0 small">
                     Documents are processed locally using PaddleOCR. Results are saved to the local database.
                 </p>
             </div>
         </div>
     );
 };
+
+export default UploadPage;

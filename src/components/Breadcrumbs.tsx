@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight, Home } from 'lucide-react';
 
 /**
- * Breadcrumb navigation component
- * Government-styled breadcrumbs for navigation hierarchy
+ * UX4G Breadcrumb Component
+ * Compliant with Government of India Design System v2.0.8
+ * 
+ * Reference: https://doc.ux4g.gov.in/components/breadcrumb.php
  */
 export const Breadcrumbs: React.FC = () => {
     const location = useLocation();
@@ -26,17 +27,29 @@ export const Breadcrumbs: React.FC = () => {
     };
 
     return (
-        <nav className="bg-white border-b border-gray-200 py-3">
-            <div className="max-w-7xl mx-auto px-4">
-                <ol className="flex items-center space-x-2 text-sm">
+        <nav aria-label="breadcrumb" className="bg-light border-bottom py-2">
+            <div className="container">
+                <ol className="breadcrumb mb-0">
                     {/* Home link */}
-                    <li className="flex items-center">
-                        <Link
-                            to="/"
-                            className="text-blue-700 hover:text-blue-900 flex items-center gap-1"
-                        >
-                            <Home className="h-4 w-4" />
-                            <span>Home</span>
+                    <li className="breadcrumb-item">
+                        <Link to="/" className="text-decoration-none">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="me-1"
+                                style={{ verticalAlign: 'text-bottom' }}
+                            >
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            Home
                         </Link>
                     </li>
 
@@ -46,12 +59,15 @@ export const Breadcrumbs: React.FC = () => {
                         const isLast = index === pathnames.length - 1;
 
                         return (
-                            <li key={to} className="flex items-center">
-                                <ChevronRight className="h-4 w-4 text-gray-400 mx-1" />
+                            <li
+                                key={to}
+                                className={`breadcrumb-item ${isLast ? 'active' : ''}`}
+                                aria-current={isLast ? 'page' : undefined}
+                            >
                                 {isLast ? (
-                                    <span className="text-gray-900 font-medium">{getLabel(segment)}</span>
+                                    getLabel(segment)
                                 ) : (
-                                    <Link to={to} className="text-blue-700 hover:text-blue-900">
+                                    <Link to={to} className="text-decoration-none">
                                         {getLabel(segment)}
                                     </Link>
                                 )}
@@ -63,3 +79,5 @@ export const Breadcrumbs: React.FC = () => {
         </nav>
     );
 };
+
+export default Breadcrumbs;

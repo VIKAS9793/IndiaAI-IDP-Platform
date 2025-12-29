@@ -1,11 +1,14 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
 
 /**
- * Government-styled button component
+ * UX4G Button Component
+ * Compliant with Government of India Design System v2.0.8
+ * 
+ * Reference: https://doc.ux4g.gov.in/components/buttons.php
  */
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'outline' | 'destructive';
+    variant?: 'primary' | 'secondary' | 'outline-primary' | 'danger' | 'warning' | 'success';
     size?: 'sm' | 'md' | 'lg';
     children: React.ReactNode;
 }
@@ -13,28 +16,38 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({
     variant = 'primary',
     size = 'md',
-    className,
+    className = '',
     children,
+    disabled,
     ...props
 }) => {
-    const baseStyles = 'font-medium rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
-
-    const variants = {
-        primary: 'bg-blue-700 text-white hover:bg-blue-600',
-        secondary: 'bg-gray-600 text-white hover:bg-gray-500',
-        outline: 'border-2 border-blue-700 text-blue-700 hover:bg-blue-50',
-        destructive: 'bg-red-600 text-white hover:bg-red-700',
+    // UX4G button class mapping
+    const variantClasses: Record<string, string> = {
+        'primary': 'btn-primary',
+        'secondary': 'btn-secondary',
+        'outline-primary': 'btn-outline-primary',
+        'danger': 'btn-danger',
+        'warning': 'btn-warning',
+        'success': 'btn-success',
     };
 
-    const sizes = {
-        sm: 'px-4 py-1.5 text-sm',
-        md: 'px-6 py-2.5 text-base',
-        lg: 'px-8 py-3 text-lg',
+    const sizeClasses: Record<string, string> = {
+        'sm': 'btn-sm',
+        'md': '',
+        'lg': 'btn-lg',
     };
+
+    const classes = [
+        'btn',
+        variantClasses[variant],
+        sizeClasses[size],
+        className,
+    ].filter(Boolean).join(' ');
 
     return (
         <button
-            className={cn(baseStyles, variants[variant], sizes[size], className)}
+            className={classes}
+            disabled={disabled}
             {...props}
         >
             {children}
@@ -42,4 +55,4 @@ export const Button: React.FC<ButtonProps> = ({
     );
 };
 
-
+export default Button;

@@ -1,39 +1,84 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
+
+/**
+ * UX4G Card Component
+ * Compliant with Government of India Design System v2.0.8
+ * 
+ * Reference: https://doc.ux4g.gov.in/components/card.php
+ */
 
 interface CardProps {
     children: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className }) => {
+export const Card: React.FC<CardProps> = ({ children, className = '', style }) => {
     return (
-        <div className={cn('bg-white rounded-lg shadow-md border border-gray-200', className)}>
+        <div className={`card ${className}`} style={style}>
             {children}
         </div>
     );
 };
 
-export const CardHeader: React.FC<CardProps> = ({ children, className }) => {
+export const CardHeader: React.FC<CardProps> = ({ children, className = '' }) => {
     return (
-        <div className={cn('p-6 border-b border-gray-100', className)}>
+        <div className={`card-header ${className}`}>
             {children}
         </div>
     );
 };
 
-export const CardTitle: React.FC<CardProps> = ({ children, className }) => {
+interface CardTitleProps {
+    children: React.ReactNode;
+    className?: string;
+    as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+}
+
+export const CardTitle: React.FC<CardTitleProps> = ({
+    children,
+    className = '',
+    as: Tag = 'h5',
+}) => {
     return (
-        <h3 className={cn('text-xl font-bold text-gray-900', className)}>
+        <Tag className={`card-title ${className}`}>
             {children}
-        </h3>
+        </Tag>
     );
 };
 
-export const CardContent: React.FC<CardProps> = ({ children, className }) => {
+export const CardBody: React.FC<CardProps> = ({ children, className = '' }) => {
     return (
-        <div className={cn('p-6', className)}>
+        <div className={`card-body ${className}`}>
             {children}
         </div>
     );
 };
+
+// Alias for backward compatibility
+export const CardContent = CardBody;
+
+export const CardFooter: React.FC<CardProps> = ({ children, className = '' }) => {
+    return (
+        <div className={`card-footer ${className}`}>
+            {children}
+        </div>
+    );
+};
+
+export const CardImg: React.FC<{
+    src: string;
+    alt: string;
+    position?: 'top' | 'bottom';
+    className?: string;
+}> = ({ src, alt, position = 'top', className = '' }) => {
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className={`card-img-${position} ${className}`}
+        />
+    );
+};
+
+export default Card;

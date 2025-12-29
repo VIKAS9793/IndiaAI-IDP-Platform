@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
 
+/**
+ * UX4G-compatible className utility
+ * Combines multiple class names (no tailwind-merge needed)
+ */
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+    return clsx(inputs)
 }

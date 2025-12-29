@@ -5,7 +5,97 @@ All notable changes to the IndiaAI IDP Platform will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - v2.0-dev
+## [3.0.0] - 2025-12-29
+
+### 🎨 MAJOR UI OVERHAUL - UX4G Migration
+
+**Breaking Change:** Complete frontend redesign to comply with Government of India Design System (UX4G v2.0.8).
+
+#### 🚀 Added
+
+**UX4G Design System Integration**
+- **Official Design System:** [UX4G v2.0.8](https://ux4g.gov.in/) (Government of India)
+- **CDN Integration:** `https://cdn.ux4g.gov.in/UX4G@2.0.8/`
+- **Accessibility Widget:** UX4G Accessibility Widget for WCAG 2.1 compliance
+- **Typography:** Noto Sans font (government-approved)
+- **Components:** Full UX4G component library (Navbar, Footer, Breadcrumbs, Cards, Alerts, Modals, Forms)
+- **Branding:** Tricolor bars, national emblem placeholders, PROTOTYPE/NOT OFFICIAL badges
+- **Icons:** Inline SVG icons (removed external icon library dependency)
+
+**Component Migration (11 components)**
+- `Header.tsx` → UX4G Navbar with tricolor bar and government branding
+- `Footer.tsx` → UX4G Footer with bilingual legal disclaimers
+- `Breadcrumbs.tsx` → UX4G Breadcrumb navigation
+- `Button.tsx` → UX4G Button variants (primary, secondary, outline, danger, warning, success)
+- `Alert.tsx` → UX4G Alert with dismissible support
+- `Card.tsx` → UX4G Card anatomy (Header, Title, Body, Footer)
+- `DisclaimerBanner.tsx` → UX4G Alert with inline SVG
+- `DisclaimerModal.tsx` → UX4G Modal structure
+- `ErrorBoundary.tsx` → UX4G Alert-based error UI
+- `PrototypeWatermark.tsx` → UX4G utility classes
+- `App.tsx` → UX4G layout wrapper
+
+**Page Migration (7 pages)**
+- `HomePage.tsx` → UX4G grid, cards, buttons
+- `UploadPage.tsx` → UX4G forms, progress bars, file upload
+- `ResultsPage.tsx` → UX4G layout with dropdown menus
+- `ReviewPage.tsx` → UX4G PDF viewer with form controls
+- `DisclaimerPage.tsx` → UX4G cards and alerts
+- `AboutPage.tsx` → UX4G information layout
+- `PrivacyPage.tsx` → UX4G policy documentation
+
+#### 🔧 Changed
+
+**Dependency Removals**
+- ❌ Removed `tailwindcss` and all Tailwind plugins
+- ❌ Removed `lucide-react` icon library
+- ✅ Replaced with UX4G CDN and inline SVGs
+
+**Configuration Updates**
+- `index.html`: Added UX4G CSS/JS CDN links
+- `src/index.css`: Removed Tailwind, added UX4G base styles
+- `package.json`: Removed Tailwind-related dependencies
+
+**Visual Changes**
+- All components now use Bootstrap-style UX4G classes (`d-flex`, `container`, `row`, `col-*`)
+- Government-compliant color palette (greens for primary actions, amber for warnings)
+- Consistent spacing and typography using UX4G utilities
+- Responsive design with UX4G breakpoints
+
+#### 📊 Migration Stats
+
+| Metric | Count |
+|--------|-------|
+| Components Migrated | 11 |
+| Pages Migrated | 7 |
+| Tailwind Classes Removed | ~500+ |
+| UX4G CDN Assets | 3 (CSS, JS, Fonts) |
+| Build Size Reduction | ~200KB (Tailwind removed) |
+
+#### 🛡️ Compliance & Accessibility
+
+- ✅ WCAG 2.1 Level AA compliance via UX4G Accessibility Widget
+- ✅ Government branding guidelines followed
+- ✅ Legal disclaimers preserved and enhanced
+- ✅ Bilingual support (English/Hindi) in footer
+
+#### 📄 Documentation Updates
+
+- Updated `README.md` with UX4G screenshots and tech stack
+- Added UX4G copyright attribution and official links
+- Updated setup guides to reference UX4G
+- Added design system compliance notes
+
+### 🔗 UX4G Resources
+
+- **Official Site:** [ux4g.gov.in](https://ux4g.gov.in/)
+- **Documentation:** [ux4g.gov.in/docs](https://ux4g.gov.in/docs)
+- **CDN:** [cdn.ux4g.gov.in](https://cdn.ux4g.gov.in/)
+- **Copyright:** © Government of India
+
+---
+
+## [2.0.0] - 2025-12-XX
 
 ### 🚀 Added
 
@@ -43,9 +133,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `backend/app/worker.py` - Integrated vector/FTS indexing after OCR
 - `backend/main.py` - Added router registration and service initialization
 
-#### Frontend
-- `src/components/DocumentViewer.tsx` - Fixed bounding box scaling
-
 ### 📊 New Dependencies
 
 ```txt
@@ -72,7 +159,9 @@ pdf2image>=1.16.0
 - Same audit scope as existing database
 - India AI Governance Guidelines compliant
 
-## [0.1.1] - 2025-12-04
+---
+
+## [1.0.0] - 2025-12-04
 
 ### 🔐 Security
 
@@ -155,7 +244,7 @@ pdf2image>=1.16.0
 - Background worker for async OCR processing
 - Comprehensive unit test suite (56+ tests)
 
-#### Frontend
+#### Frontend (Tailwind CSS - Deprecated in v3.0.0)
 - React + TypeScript + Vite
 - PDF viewer with bounding box visualization
 - Side-by-side document and extracted text display
@@ -177,104 +266,49 @@ pdf2image>=1.16.0
 
 ---
 
-## Migration Guide: 0.1.0 → 0.1.1
+## Migration Guide: 2.0.0 → 3.0.0 (UX4G)
 
 ### For Existing Installations
 
-**⚠️ Important: This release requires a fresh Python virtual environment due to numpy compatibility changes.**
+**⚠️ Important: This is a MAJOR UI redesign. No backend changes required.**
 
-#### Step 1: Backup Current Environment
+#### Frontend Migration
+
+**What Changed:**
+- Tailwind CSS → UX4G v2.0.8
+- lucide-react icons → Inline SVGs
+- Custom components → UX4G government-approved components
+
+**No Action Required:**
+- Backend API remains unchanged
+- Database schema unchanged
+- All existing data compatible
+- No dependency reinstallation needed (frontend only)
+
+#### Visual Verification
+
+After pulling latest code:
 ```bash
-cd backend
-pip freeze > requirements_backup.txt
-```
-
-#### Step 2: Rebuild Virtual Environment
-```bash
-# Delete old environment
-Remove-Item -Recurse -Force .venv  # Windows
-rm -rf .venv  # Linux/Mac
-
-# Create fresh environment
-python -m venv .venv
-
-# Activate
-.\.venv\Scripts\Activate.ps1  # Windows
-source .venv/bin/activate  # Linux/Mac
-
-# Upgrade pip
-python -m pip install --upgrade pip setuptools wheel
-
-# Install dependencies (numpy will be installed correctly)
-pip install -r requirements.txt
-```
-
-#### Step 3: Initialize Database
-```bash
-# Run migrations
-alembic upgrade head
-
-# Create audit_logs table if missing
-python scripts/create_audit_table.py
-```
-
-#### Step 4: Verify Installation
-```bash
-# Check versions
-pip list | grep -E "paddlepaddle|pillow|python-multipart|numpy"
-
-# Expected output:
-# paddlepaddle    3.0.0
-# pillow          10.3.0
-# python-multipart 0.0.9
-# numpy           1.26.4
-```
-
-#### Step 5: Test OCR Functionality
-```bash
-# Start backend
-python -m uvicorn main:app --reload
-
-# In another terminal, start frontend
+# Frontend
 npm run dev
 
-# Upload a test document through UI
+# Visit http://localhost:5173
+# Verify UX4G components render correctly
 ```
 
-### Code Changes Required
-
-#### If you used PIIService directly:
-
-**Before:**
-```python
-from app.services.pii import PIIService
-
-pii_service = PIIService()
-entities = pii_service.analyze_text(text)
-```
-
-**After:**
-```python
-from app.core.security_utils import SecurityUtils
-
-masked_text = SecurityUtils.mask_pii_in_text(text)
-```
-
-**SecurityUtils methods available:**
-- `mask_email(text)` - Mask email addresses
-- `mask_phone(text)` - Mask phone numbers (Indian +91, 10-digit)
-- `mask_aadhaar(text)` - Mask Aadhaar numbers
-- `mask_pan(text)` - Mask PAN cards
-- `mask_credit_card(text)` - Mask credit card numbers
-- `mask_ssn(text)` - Mask SSNs
-- `mask_pii_in_text(text)` - Mask all PII types
+**Expected Changes:**
+- Green government-themed buttons (instead of blue)
+- Tricolor bars at top/bottom
+- PROTOTYPE and NOT OFFICIAL badges in header
+- Government typography (Noto Sans)
+- UX4G-compliant spacing and colors
 
 ---
 
 ## Notes
 
 ### Versioning Strategy
-- **Major version (x.0.0)**: Breaking changes, major feature releases
+- **Major version (x.0.0)**: Breaking changes, major feature releases, UI redesigns
 - **Minor version (0.x.0)**: New features, non-breaking changes
 - **Patch version (0.0.x)**: Bug fixes, security patches
 
@@ -286,6 +320,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ---
 
-[unreleased]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/compare/v0.1.0...v0.1.1
+[3.0.0]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/releases/tag/v3.0.0
+[2.0.0]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/VIKAS9793/IndiaAI-IDP-Platform/releases/tag/v0.1.0

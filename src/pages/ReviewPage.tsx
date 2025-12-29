@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { fetchNeedsReviewJobs, submitJobReview, getJobResults } from '../lib/api';
 import type { Job, OCRResult } from '../lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
-import { Loader2, CheckCircle, XCircle, AlertTriangle, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/Alert';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Configure PDF worker
+/**
+ * UX4G Review Page Component
+ * Human-in-the-loop verification of low-confidence OCR results
+ * 
+ * Compliant with Government of India Design System v2.0.8
+ */
+
 // Configure PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -36,7 +41,6 @@ const ReviewPage: React.FC = () => {
         }
     }, [selectedJob]);
 
-    // Update text when page changes
     useEffect(() => {
         if (ocrResults.length > 0) {
             const pageResult = ocrResults.find(r => r.page_number === pageNumber);
@@ -71,7 +75,6 @@ const ReviewPage: React.FC = () => {
             setOcrResults(data.ocr_results);
         } catch (err) {
             console.error('Failed to load results:', err);
-            // Don't block UI, just show empty text
         } finally {
             setLoadingResults(false);
         }
@@ -88,7 +91,6 @@ const ReviewPage: React.FC = () => {
                 }
             });
 
-            // Remove from list and select next
             const updatedJobs = jobs.filter(j => j.id !== selectedJob.id);
             setJobs(updatedJobs);
             setSelectedJob(updatedJobs.length > 0 ? updatedJobs[0] : null);
@@ -104,179 +106,276 @@ const ReviewPage: React.FC = () => {
     };
 
     const getFileUrl = (fileKey: string) => {
-        // Construct URL to backend static file serving
         return `http://localhost:8000/data/uploads/${fileKey}`;
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="d-flex justify-content-center align-items-center min-vh-100">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
             </div>
         );
     }
 
     if (jobs.length === 0) {
         return (
-            <div className="container mx-auto p-6">
+            <div className="container py-5">
                 <Card>
                     <CardHeader>
                         <CardTitle>Review Queue</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-center py-12">
-                        <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold mb-2">All Caught Up!</h3>
-                        <p className="text-gray-500">No documents pending review.</p>
-                    </CardContent>
+                    <CardBody className="text-center py-5">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="48"
+                            height="48"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-success mx-auto mb-3"
+                        >
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <h3 className="h5 fw-semibold mb-2">All Caught Up!</h3>
+                        <p className="text-muted mb-0">No documents pending review.</p>
+                    </CardBody>
                 </Card>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto p-6 h-[calc(100vh-4rem)] flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Document Review Queue ({jobs.length})</h1>
-                <div className="text-sm text-gray-500">
-                    Reviewing: <span className="font-semibold text-gray-900">{selectedJob?.filename}</span>
-                </div>
+        <div className="container py-4" style={{ height: 'calc(100vh - 200px)' }}>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="h4 fw-bold mb-0">Document Review Queue ({jobs.length})</h1>
+                <small className="text-muted">
+                    Reviewing: <span className="fw-semibold">{selectedJob?.filename}</span>
+                </small>
             </div>
 
             {error && (
-                <Alert variant="destructive" className="mb-4">
-                    <AlertTriangle className="h-4 w-4" />
+                <Alert variant="danger" className="mb-4" dismissible onDismiss={() => setError(null)}>
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-hidden">
+            <div className="row g-4" style={{ height: 'calc(100% - 60px)' }}>
                 {/* Left: Document Viewer */}
-                <Card className="h-full flex flex-col overflow-hidden">
-                    <CardHeader className="py-3 px-4 border-b bg-gray-50 flex flex-row justify-between items-center">
-                        <CardTitle className="text-base">Original Document</CardTitle>
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={pageNumber <= 1}
-                                onClick={() => setPageNumber(p => p - 1)}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm">
-                                Page {pageNumber} of {numPages || '--'}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={numPages === null || pageNumber >= numPages}
-                                onClick={() => setPageNumber(p => p + 1)}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-1 bg-gray-200 p-0 overflow-auto flex justify-center relative">
-                        {selectedJob ? (
-                            <Document
-                                file={getFileUrl(selectedJob.file_key)}
-                                onLoadSuccess={onDocumentLoadSuccess}
-                                className="max-w-full"
-                                loading={
-                                    <div className="flex items-center justify-center h-64">
-                                        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-                                    </div>
-                                }
-                                error={
-                                    <div className="flex items-center justify-center h-64 text-red-500">
-                                        Failed to load PDF
-                                    </div>
-                                }
-                            >
-                                <Page
-                                    pageNumber={pageNumber}
-                                    renderTextLayer={true}
-                                    renderAnnotationLayer={true}
-                                    width={600}
-                                    className="shadow-lg my-4"
-                                />
-                            </Document>
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-gray-500">
-                                Select a job to view
+                <div className="col-md-6">
+                    <Card className="h-100 d-flex flex-column">
+                        <CardHeader className="d-flex justify-content-between align-items-center">
+                            <CardTitle as="h6" className="mb-0">Original Document</CardTitle>
+                            <div className="d-flex align-items-center gap-2">
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    disabled={pageNumber <= 1}
+                                    onClick={() => setPageNumber(p => p - 1)}
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="m15 18-6-6 6-6" />
+                                    </svg>
+                                </Button>
+                                <small>Page {pageNumber} of {numPages || '--'}</small>
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    disabled={numPages === null || pageNumber >= numPages}
+                                    onClick={() => setPageNumber(p => p + 1)}
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </Button>
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
+                        </CardHeader>
+                        <CardBody className="flex-grow-1 bg-light overflow-auto d-flex justify-content-center p-0">
+                            {selectedJob ? (
+                                <Document
+                                    file={getFileUrl(selectedJob.file_key)}
+                                    onLoadSuccess={onDocumentLoadSuccess}
+                                    className="mw-100"
+                                    loading={
+                                        <div className="d-flex align-items-center justify-content-center" style={{ height: '300px' }}>
+                                            <div className="spinner-border text-secondary" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    error={
+                                        <div className="d-flex align-items-center justify-content-center text-danger" style={{ height: '300px' }}>
+                                            Failed to load PDF
+                                        </div>
+                                    }
+                                >
+                                    <Page
+                                        pageNumber={pageNumber}
+                                        renderTextLayer={true}
+                                        renderAnnotationLayer={true}
+                                        width={500}
+                                        className="shadow my-3"
+                                    />
+                                </Document>
+                            ) : (
+                                <div className="d-flex align-items-center justify-content-center h-100 text-muted">
+                                    Select a job to view
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+                </div>
 
                 {/* Right: Extraction Results & Actions */}
-                <Card className="h-full flex flex-col overflow-hidden">
-                    <CardHeader className="py-3 px-4 border-b bg-gray-50">
-                        <CardTitle className="text-base">Extracted Data & Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden flex flex-col p-4">
-                        {selectedJob && (
-                            <>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="bg-gray-50 p-3 rounded-md">
-                                        <label className="text-xs font-medium text-gray-500 uppercase">Confidence</label>
-                                        <p className={`text-xl font-bold ${(selectedJob.confidence_score || 0) < 90 ? 'text-red-500' : 'text-green-500'
-                                            }`}>
-                                            {selectedJob.confidence_score}%
+                <div className="col-md-6">
+                    <Card className="h-100 d-flex flex-column">
+                        <CardHeader>
+                            <CardTitle as="h6" className="mb-0">Extracted Data & Actions</CardTitle>
+                        </CardHeader>
+                        <CardBody className="flex-grow-1 d-flex flex-column overflow-hidden">
+                            {selectedJob && (
+                                <>
+                                    <div className="row g-3 mb-3">
+                                        <div className="col-6">
+                                            <div className="bg-light p-3 rounded">
+                                                <small className="text-muted text-uppercase fw-medium d-block">Confidence</small>
+                                                <span className={`h4 fw-bold mb-0 ${(selectedJob.confidence_score || 0) < 90 ? 'text-danger' : 'text-success'}`}>
+                                                    {selectedJob.confidence_score}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="col-6">
+                                            <div className="bg-light p-3 rounded">
+                                                <small className="text-muted text-uppercase fw-medium d-block">Language</small>
+                                                <span className="h5 fw-medium mb-0">{selectedJob.detected_language || 'Unknown'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-grow-1 d-flex flex-column mb-3" style={{ minHeight: 0 }}>
+                                        <label className="form-label small fw-medium d-flex align-items-center gap-2">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                                <line x1="16" x2="8" y1="13" y2="13" />
+                                                <line x1="16" x2="8" y1="17" y2="17" />
+                                            </svg>
+                                            Extracted Text (Editable)
+                                        </label>
+                                        {loadingResults ? (
+                                            <div className="flex-grow-1 d-flex align-items-center justify-content-center border rounded bg-light">
+                                                <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <textarea
+                                                className="form-control flex-grow-1 font-monospace small"
+                                                value={currentText}
+                                                onChange={(e) => setCurrentText(e.target.value)}
+                                                placeholder="Extracted text will appear here..."
+                                                style={{ resize: 'none' }}
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="border-top pt-3 mt-auto">
+                                        <div className="row g-2">
+                                            <div className="col">
+                                                <Button
+                                                    variant="success"
+                                                    onClick={() => handleReview('approve')}
+                                                    className="w-100"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="me-2"
+                                                    >
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <path d="m9 12 2 2 4-4" />
+                                                    </svg>
+                                                    Approve & Save
+                                                </Button>
+                                            </div>
+                                            <div className="col">
+                                                <Button
+                                                    variant="danger"
+                                                    onClick={() => handleReview('reject')}
+                                                    className="w-100"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="me-2"
+                                                    >
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <path d="m15 9-6 6" />
+                                                        <path d="m9 9 6 6" />
+                                                    </svg>
+                                                    Reject
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <p className="text-muted text-center small mt-2 mb-0">
+                                            Approving will save any edits made to the text.
                                         </p>
                                     </div>
-                                    <div className="bg-gray-50 p-3 rounded-md">
-                                        <label className="text-xs font-medium text-gray-500 uppercase">Language</label>
-                                        <p className="text-lg font-medium">{selectedJob.detected_language || 'Unknown'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 flex flex-col min-h-0 mb-4">
-                                    <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
-                                        Extracted Text (Editable)
-                                    </label>
-                                    {loadingResults ? (
-                                        <div className="flex-1 flex items-center justify-center border rounded-md bg-gray-50">
-                                            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                                        </div>
-                                    ) : (
-                                        <textarea
-                                            className="flex-1 w-full p-4 border rounded-md font-mono text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            value={currentText}
-                                            onChange={(e) => setCurrentText(e.target.value)}
-                                            placeholder="Extracted text will appear here..."
-                                        />
-                                    )}
-                                </div>
-
-                                <div className="border-t pt-4 mt-auto">
-                                    <div className="flex gap-3">
-                                        <Button
-                                            onClick={() => handleReview('approve')}
-                                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                                        >
-                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                            Approve & Save
-                                        </Button>
-                                        <Button
-                                            onClick={() => handleReview('reject')}
-                                            variant="destructive"
-                                            className="flex-1"
-                                        >
-                                            <XCircle className="mr-2 h-4 w-4" />
-                                            Reject
-                                        </Button>
-                                    </div>
-                                    <p className="text-xs text-gray-400 text-center mt-2">
-                                        Approving will save any edits made to the text.
-                                    </p>
-                                </div>
-                            </>
-                        )}
-                    </CardContent>
-                </Card>
+                                </>
+                            )}
+                        </CardBody>
+                    </Card>
+                </div>
             </div>
         </div>
     );

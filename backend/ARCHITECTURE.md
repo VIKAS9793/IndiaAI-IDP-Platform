@@ -17,7 +17,7 @@
 %%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#E8F5E9','secondaryColor':'#FFF3E0','tertiaryColor':'#E3F2FD','lineColor':'#FF6F00'}}}%%
 graph TB
     subgraph client["👥 Client Layer"]
-        UI["🌐 React UI<br/>(Vite + TailwindCSS)"]
+        UI["🌐 React UI<br/>(Vite + UX4G v2.0.8)"]
     end
     
     subgraph api["🔌 API Layer"]

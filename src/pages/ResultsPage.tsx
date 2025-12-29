@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FileText, ArrowLeft, CheckCircle2, Clock, Download, AlertCircle, ChevronDown, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Card, CardBody } from '../components/ui/Card';
 import api, { type JobResultsResponse, type TextBlock, type RawOCRData } from '../lib/api';
 import { DocumentViewer } from '../components/DocumentViewer';
 
+/**
+ * UX4G Results Page Component
+ * Displays OCR processing results with document viewer
+ * 
+ * Compliant with Government of India Design System v2.0.8
+ */
 export const ResultsPage: React.FC = () => {
     const { jobId } = useParams<{ jobId: string }>();
     const navigate = useNavigate();
@@ -23,11 +28,9 @@ export const ResultsPage: React.FC = () => {
         const checkStatusAndFetchResults = async () => {
             if (!jobId) return;
             try {
-                // First check job status
                 const statusData = await api.getJobStatus(jobId);
 
                 if (statusData.status === 'completed' || statusData.status === 'ocr_complete') {
-                    // If complete, fetch the full results
                     const data = await api.getJobResults(jobId);
                     setResults(data);
                     setLoading(false);
@@ -36,24 +39,16 @@ export const ResultsPage: React.FC = () => {
                     setError('Job processing failed.');
                     setLoading(false);
                     if (pollInterval) clearInterval(pollInterval);
-                } else {
-                    // Still processing, keep polling
-                    // Optional: Update a progress indicator here if we had one
                 }
             } catch (err) {
                 console.error('Error polling job status:', err);
-                // Don't set error immediately on poll failure, retry a few times? 
-                // For now, let's just stop polling on hard error to avoid infinite loops
                 setError('Failed to track job status. Please refresh.');
                 setLoading(false);
                 if (pollInterval) clearInterval(pollInterval);
             }
         };
 
-        // Initial check
         checkStatusAndFetchResults();
-
-        // Start polling every 2 seconds
         pollInterval = setInterval(checkStatusAndFetchResults, 2000);
 
         return () => {
@@ -61,7 +56,6 @@ export const ResultsPage: React.FC = () => {
         };
     }, [jobId]);
 
-    // Parse raw_data to extract bounding boxes
     useEffect(() => {
         if (!results || !results.ocr_results.length) return;
 
@@ -76,7 +70,6 @@ export const ResultsPage: React.FC = () => {
         }
     }, [results]);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
@@ -144,18 +137,13 @@ export const ResultsPage: React.FC = () => {
     };
 
     const handleBlockClick = (block: TextBlock) => {
-
-
-        // Highlight the corresponding text in the extracted text display
         if (textDisplayRef.current) {
             const textElement = textDisplayRef.current;
             const textContent = textElement.textContent || '';
             const blockText = block.text;
 
-            // Find text position and scroll to it
             const index = textContent.indexOf(blockText);
             if (index !== -1) {
-                // Create a temporary range to scroll to
                 const range = document.createRange();
                 const textNode = textElement.firstChild;
                 if (textNode) {
@@ -166,12 +154,10 @@ export const ResultsPage: React.FC = () => {
                     selection?.removeAllRanges();
                     selection?.addRange(range);
 
-                    // Scroll into view
                     const span = document.createElement('span');
                     range.surroundContents(span);
                     span.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                    // Clean up
                     setTimeout(() => {
                         const parent = span.parentNode;
                         while (span.firstChild) {
@@ -186,18 +172,35 @@ export const ResultsPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
+            <div className="d-flex align-items-center justify-content-center min-vh-100">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
             </div>
         );
     }
 
     if (error || !results) {
         return (
-            <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-                <AlertCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Results</h2>
-                <p className="text-gray-600 mb-6">{error || 'Job not found'}</p>
+            <div className="container py-5 text-center">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-danger mx-auto mb-4"
+                >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" x2="12" y1="8" y2="12" />
+                    <line x1="12" x2="12.01" y1="16" y2="16" />
+                </svg>
+                <h2 className="h3 fw-bold mb-2">Error Loading Results</h2>
+                <p className="text-muted mb-4">{error || 'Job not found'}</p>
                 <Button variant="primary" onClick={() => navigate('/upload')}>
                     Back to Upload
                 </Button>
@@ -212,154 +215,294 @@ export const ResultsPage: React.FC = () => {
         : 0;
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="container py-5">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+                <div className="d-flex align-items-center gap-3">
                     <button
                         onClick={() => navigate('/upload')}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        className="btn btn-outline-secondary btn-sm"
                     >
-                        <ArrowLeft className="h-6 w-6 text-gray-600" />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="m12 19-7-7 7-7" />
+                            <path d="M19 12H5" />
+                        </svg>
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Processing Results</h1>
-                        <p className="text-gray-500 text-sm">Job ID: {job.id}</p>
+                        <h1 className="h4 fw-bold mb-0">Processing Results</h1>
+                        <small className="text-muted">Job ID: {job.id}</small>
                     </div>
                 </div>
-                <div className="flex gap-3 relative">
+                <div className="d-flex gap-2 flex-wrap">
                     {(job.review_status === 'needs_review' || (job.confidence_score && job.confidence_score < 90)) && (
-                        <Button
-                            variant="destructive"
-                            onClick={() => navigate('/review')}
-                            className="animate-pulse"
-                        >
-                            <AlertTriangle className="mr-2 h-4 w-4" />
+                        <Button variant="danger" onClick={() => navigate('/review')}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="me-2"
+                            >
+                                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                                <path d="M12 9v4" />
+                                <path d="M12 17h.01" />
+                            </svg>
                             Review Required
                         </Button>
                     )}
-                    <Button variant="outline" onClick={() => window.print()}>
+                    <Button variant="outline-primary" onClick={() => window.print()}>
                         Print
                     </Button>
-                    <div className="relative download-dropdown-container">
+                    <div className="dropdown download-dropdown-container">
                         <Button
                             variant="primary"
                             onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                         >
-                            <Download className="mr-2 h-4 w-4" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="me-2"
+                            >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" x2="12" y1="15" y2="3" />
+                            </svg>
                             Download
-                            <ChevronDown className="ml-2 h-4 w-4" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="ms-2"
+                            >
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
                         </Button>
 
                         {showDownloadMenu && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                                <button
-                                    onClick={downloadAsText}
-                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                    <FileText className="h-4 w-4" />
-                                    Download as Text (.txt)
-                                </button>
-                                <button
-                                    onClick={downloadAsJSON}
-                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    Download as JSON (.json)
-                                </button>
-                            </div>
+                            <ul className="dropdown-menu show" style={{ position: 'absolute', right: 0 }}>
+                                <li>
+                                    <button className="dropdown-item" onClick={downloadAsText}>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="me-2"
+                                        >
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                            <polyline points="14 2 14 8 20 8" />
+                                            <line x1="16" x2="8" y1="13" y2="13" />
+                                            <line x1="16" x2="8" y1="17" y2="17" />
+                                            <line x1="10" x2="8" y1="9" y2="9" />
+                                        </svg>
+                                        Download as Text (.txt)
+                                    </button>
+                                </li>
+                                <li>
+                                    <button className="dropdown-item" onClick={downloadAsJSON}>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="me-2"
+                                        >
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" x2="12" y1="15" y2="3" />
+                                        </svg>
+                                        Download as JSON (.json)
+                                    </button>
+                                </li>
+                            </ul>
                         )}
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="row g-4">
                 {/* Left Column: Document Info & Stats */}
-                <div className="space-y-6">
-                    <Card>
-                        <h3 className="font-semibold text-gray-900 mb-4">Document Details</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <FileText className="h-5 w-5 text-blue-600" />
+                <div className="col-lg-4">
+                    <Card className="mb-4">
+                        <CardBody>
+                            <h3 className="h6 fw-semibold mb-3">Document Details</h3>
+                            <div className="d-flex align-items-center gap-3 mb-3">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-primary"
+                                >
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg>
                                 <div>
-                                    <p className="text-sm text-gray-500">Filename</p>
-                                    <p className="font-medium">{job.filename}</p>
+                                    <small className="text-muted d-block">Filename</small>
+                                    <span className="fw-medium">{job.filename}</span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            <div className="d-flex align-items-center gap-3 mb-3">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-success"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
                                 <div>
-                                    <p className="text-sm text-gray-500">Status</p>
-                                    <p className="font-medium capitalize">{job.status}</p>
+                                    <small className="text-muted d-block">Status</small>
+                                    <span className="fw-medium text-capitalize">{job.status}</span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <Clock className="h-5 w-5 text-purple-600" />
+                            <div className="d-flex align-items-center gap-3">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-info"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
                                 <div>
-                                    <p className="text-sm text-gray-500">Processed At</p>
-                                    <p className="font-medium">
+                                    <small className="text-muted d-block">Processed At</small>
+                                    <span className="fw-medium">
                                         {job.completed_at
                                             ? new Date(job.completed_at.endsWith('Z') ? job.completed_at : job.completed_at + 'Z').toLocaleString()
                                             : '-'}
-                                    </p>
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <h3 className="font-semibold text-gray-900 mb-4">Analysis Stats</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-3 bg-blue-50 rounded-lg">
-                                <p className="text-sm text-blue-600 mb-1">Confidence</p>
-                                <p className="text-2xl font-bold text-blue-900">
-                                    {avgConfidence.toFixed(1)}%
-                                </p>
+                        <CardBody>
+                            <h3 className="h6 fw-semibold mb-3">Analysis Stats</h3>
+                            <div className="row g-3">
+                                <div className="col-6">
+                                    <div className="p-3 bg-primary bg-opacity-10 rounded">
+                                        <small className="text-primary d-block mb-1">Confidence</small>
+                                        <span className="h4 fw-bold text-primary mb-0">
+                                            {avgConfidence.toFixed(1)}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="col-6">
+                                    <div className="p-3 bg-success bg-opacity-10 rounded">
+                                        <small className="text-success d-block mb-1">Pages</small>
+                                        <span className="h4 fw-bold text-success mb-0">
+                                            {ocr_results.length}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="p-3 bg-green-50 rounded-lg">
-                                <p className="text-sm text-green-600 mb-1">Pages</p>
-                                <p className="text-2xl font-bold text-green-900">
-                                    {ocr_results.length}
-                                </p>
-                            </div>
-                        </div>
+                        </CardBody>
                     </Card>
                 </div>
 
                 {/* Right Column: Document Viewer & Extracted Text */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="col-lg-8">
                     {/* Document Viewer with Bounding Boxes */}
                     {textBlocks.length > 0 && (
-                        <Card>
-                            <h3 className="font-semibold text-gray-900 mb-4">Document with Detected Text Regions</h3>
-                            <DocumentViewer
-                                fileUrl={`http://localhost:8000/data/uploads/${job.file_key}`}
-                                fileType={job.file_type || ''}
-                                textBlocks={textBlocks}
-                                onBlockClick={handleBlockClick}
-                            />
+                        <Card className="mb-4">
+                            <CardBody>
+                                <h3 className="h6 fw-semibold mb-3">Document with Detected Text Regions</h3>
+                                <DocumentViewer
+                                    fileUrl={`http://localhost:8000/data/uploads/${job.file_key}`}
+                                    fileType={job.file_type || ''}
+                                    textBlocks={textBlocks}
+                                    onBlockClick={handleBlockClick}
+                                />
+                            </CardBody>
                         </Card>
                     )}
 
                     {/* Extracted Text */}
-                    <Card className="min-h-[400px]">
-                        <div className="flex items-center justify-between mb-4 border-b pb-4">
-                            <h3 className="font-semibold text-gray-900">Extracted Text</h3>
-                            <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                {job.detected_language || 'English'}
-                            </span>
-                        </div>
-                        <div className="prose max-w-none">
+                    <Card style={{ minHeight: '400px' }}>
+                        <CardBody>
+                            <div className="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                                <h3 className="h6 fw-semibold mb-0">Extracted Text</h3>
+                                <span className="badge bg-secondary">
+                                    {job.detected_language || 'English'}
+                                </span>
+                            </div>
                             <pre
                                 ref={textDisplayRef}
-                                className="whitespace-pre-wrap font-sans text-gray-700 text-base leading-relaxed"
+                                className="mb-0"
+                                style={{
+                                    whiteSpace: 'pre-wrap',
+                                    fontFamily: 'inherit',
+                                    fontSize: '1rem',
+                                    lineHeight: '1.6',
+                                }}
                             >
                                 {fullText || 'No text detected.'}
                             </pre>
-                        </div>
+                        </CardBody>
                     </Card>
                 </div>
             </div>
         </div>
     );
 };
+
+export default ResultsPage;

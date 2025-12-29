@@ -1,6 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { AlertTriangle } from 'lucide-react';
 import { Button } from './ui/Button';
+
+/**
+ * UX4G Error Boundary Component
+ * Catches JavaScript errors and displays fallback UI
+ * 
+ * Compliant with Government of India Design System v2.0.8
+ */
 
 interface Props {
     children: ReactNode;
@@ -31,43 +37,60 @@ export class ErrorBoundary extends Component<Props, State> {
     public render() {
         if (this.state.hasError) {
             return (
-                <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-                    <div className="max-w-2xl w-full bg-white rounded-lg shadow-xl p-8 border border-red-100">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-red-100 rounded-full">
-                                <AlertTriangle className="h-8 w-8 text-red-600" />
+                <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light p-4">
+                    <div className="card shadow-lg border-danger" style={{ maxWidth: '600px', width: '100%' }}>
+                        <div className="card-body p-5">
+                            <div className="d-flex align-items-center gap-3 mb-4">
+                                <div className="p-3 bg-danger bg-opacity-10 rounded-circle">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="32"
+                                        height="32"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-danger"
+                                    >
+                                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                                        <path d="M12 9v4" />
+                                        <path d="M12 17h.01" />
+                                    </svg>
+                                </div>
+                                <h1 className="h4 fw-bold mb-0">Something went wrong</h1>
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
-                        </div>
 
-                        <p className="text-gray-600 mb-6">
-                            The application encountered an unexpected error. Please report this to the development team.
-                        </p>
+                            <p className="text-muted mb-4">
+                                The application encountered an unexpected error. Please report this to the development team.
+                            </p>
 
-                        {this.state.error && (
-                            <div className="bg-gray-900 rounded-lg p-4 mb-6 overflow-x-auto">
-                                <p className="text-red-400 font-mono text-sm font-bold mb-2">
-                                    {this.state.error.toString()}
-                                </p>
-                                <pre className="text-gray-400 font-mono text-xs whitespace-pre-wrap">
-                                    {this.state.errorInfo?.componentStack || this.state.error.stack}
-                                </pre>
+                            {this.state.error && (
+                                <div className="bg-dark rounded p-3 mb-4 overflow-auto">
+                                    <p className="text-danger font-monospace small fw-bold mb-2">
+                                        {this.state.error.toString()}
+                                    </p>
+                                    <pre className="text-secondary font-monospace small mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                                        {this.state.errorInfo?.componentStack || this.state.error.stack}
+                                    </pre>
+                                </div>
+                            )}
+
+                            <div className="d-flex gap-3">
+                                <Button
+                                    variant="primary"
+                                    onClick={() => window.location.href = '/'}
+                                >
+                                    Return Home
+                                </Button>
+                                <Button
+                                    variant="outline-primary"
+                                    onClick={() => window.location.reload()}
+                                >
+                                    Reload Page
+                                </Button>
                             </div>
-                        )}
-
-                        <div className="flex gap-4">
-                            <Button
-                                variant="primary"
-                                onClick={() => window.location.href = '/'}
-                            >
-                                Return Home
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => window.location.reload()}
-                            >
-                                Reload Page
-                            </Button>
                         </div>
                     </div>
                 </div>
@@ -77,3 +100,5 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.children;
     }
 }
+
+export default ErrorBoundary;

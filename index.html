@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg/xml" href="/vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CRITICAL: Prevent search engine indexing -->
@@ -15,8 +15,15 @@
     content="PROTOTYPE DEMONSTRATION ONLY - NOT an official government platform. Do not upload real documents." />
   <meta name="author" content="Technical Demonstration" />
 
-  <title>IndiaAI IDP Platform</title>
-  <!-- Load react-pdf CSS from unpkg CDN -->
+  <title>IndiaAI IDP Platform - PROTOTYPE</title>
+
+  <!-- UX4G Design System v2.0.8 (Government of India) -->
+  <link href="https://cdn.ux4g.gov.in/UX4G@2.0.8/css/ux4g-min.css" rel="stylesheet" />
+  
+  <!-- Noto Sans (UX4G Recommended Font) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- react-pdf CSS (keep for PDF viewer) -->
   <link rel="stylesheet" href="https://unpkg.com/react-pdf@9.1.1/dist/Page/AnnotationLayer.css" />
   <link rel="stylesheet" href="https://unpkg.com/react-pdf@9.1.1/dist/Page/TextLayer.css" />
 </head>
@@ -24,6 +31,12 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  
+  <!-- UX4G Design System JS (with Popper for dropdowns/tooltips) -->
+  <script src="https://cdn.ux4g.gov.in/UX4G@2.0.8/js/ux4g.min.js"></script>
+  
+  <!-- UX4G Accessibility Widget (Government of India) -->
+  <script src="https://cdn.ux4g.gov.in/tools/accessibility-widget.js" defer></script>
 </body>
 
 </html>
