@@ -1,8 +1,8 @@
-fastapi==0.108.0
-uvicorn[standard]==0.25.0
-python-multipart==0.0.18  # Updated from 0.0.6 - fixes ReDoS CVE
-pydantic==2.5.3
-pydantic-settings==2.1.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.18  # Updated/Fixed ReDoS
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
 python-json-logger>=2.0.7
 
 # Database
@@ -18,7 +18,7 @@ Pillow==10.3.0  # Updated from 10.1.0 - fixes buffer overflow CVE
 # Upgraded to 3.0.0 (2.6.1 not available on PyPI for Windows)
 paddlepaddle==3.0.0  # Latest stable, fixes all known vulnerabilities
 paddleocr==2.7.3
-langchain==0.1.0         # Required by paddlex/paddleocr legacy code
+langchain>=0.3.17         # Required by langchain-community 0.3.x
 langchain-community==0.3.27 # Required for docstore compatibility
 
 # Note: Presidio removed due to numpy 2.x incompatibility with PaddlePaddle 3.0

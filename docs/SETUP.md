@@ -51,8 +51,8 @@ pip install -r requirements.txt
 - `numpy<2.0.0` (auto-installed, required for PaddlePaddle)
 - `Pillow==10.3.0` (security patch)
 - `python-multipart==0.0.9` (security patch)
-- `langchain==0.1.0` (required for PaddleOCR)
-- `langchain-community==0.0.10` (required for PaddleOCR)
+- `langchain>=0.3.17` (required for PaddleOCR/Community)
+- `langchain-community==0.3.27` (required for PaddleOCR)
 
 ### Database Setup
 
