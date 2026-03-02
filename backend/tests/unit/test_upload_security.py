@@ -2,19 +2,12 @@
 Unit tests for upload route security enhancements
 """
 import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 
 
 class TestUploadSecurity:
     """Tests for upload route security features"""
-    
-    @pytest.fixture
-    def client(self):
-        """Create test client"""
-        from main import app
-        return TestClient(app)
     
     def test_invalid_file_extension_rejected(self, client):
         """Test that files with invalid extensions are rejected"""
