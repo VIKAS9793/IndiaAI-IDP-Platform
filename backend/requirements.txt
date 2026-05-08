@@ -29,7 +29,7 @@ langchain-community==0.3.27 # Required for docstore compatibility
 numpy<2.0.0  # PaddlePaddle 3.0 requires numpy 1.x
 
 # Utilities
-python-dotenv==1.0.0
+python-dotenv==1.2.2
 
 # Development
 pytest==9.0.3
